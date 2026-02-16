@@ -4,7 +4,6 @@ import { GameHistory } from "@/model/game-history.model";
 import { Player } from "@/model/player.model";
 
 interface AutoMatchParams {
-  courtId: number;
   players: Player[];
   courts: Court[];
   gameHistory: GameHistory[];
@@ -21,7 +20,6 @@ const levelWeight: Record<Level, number> = {
 };
 
 export function autoMatchPlayers({
-  courtId,
   players,
   courts,
   gameHistory,

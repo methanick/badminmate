@@ -257,7 +257,6 @@ export function useGameHandlers({
 
   const handleAutoMatch = (courtId: number) => {
     const result = autoMatchPlayers({
-      courtId,
       players,
       courts,
       restingPlayers,

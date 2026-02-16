@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Court } from "@/model/court.model";
 import { Player } from "@/model/player.model";
-import Link from "next/link";
+import { Plus } from "lucide-react";
 
 interface CourtGridProps {
   courts: Court[];
@@ -45,7 +45,6 @@ export function CourtGrid({
   onEndGame,
   onAutoMatch,
   onAddCourt,
-  onClearAllCourts,
   strictMode = false,
   onStrictModeChange,
 }: CourtGridProps) {
@@ -74,25 +73,13 @@ export function CourtGrid({
             />
             <span className="text-xs">ไม่เจอคู่เดิม</span>
           </div>
-          <Link href="/history">
-            <Button variant="outline" size="sm" className="text-xs h-8 py-1">
-              ประวัติ
-            </Button>
-          </Link>
           <Button onClick={onAddCourt} size="sm" className="text-xs h-8 py-1">
+            <Plus className="w-4 h-4 mr-1" />
             เพิ่มสนาม
-          </Button>
-          <Button
-            onClick={onClearAllCourts}
-            variant="outline"
-            className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs h-8 py-1"
-            disabled={courts.length === 0}
-          >
-            ล้างสนามทั้งหมด
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 overflow-y-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 overflow-y-auto">
         {courts.map((court) => (
           <CourtCard
             key={court.id}

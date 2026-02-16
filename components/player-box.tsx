@@ -231,7 +231,7 @@ function DraggablePlayer({
       style={style}
       {...(isDisabled ? {} : listeners)}
       {...(isDisabled ? {} : attributes)}
-      className="rounded-sm p-1.5 text-white text-xs w-20 text-start relative text-center"
+      className="rounded-sm p-1.5 text-white text-xs w-16 text-center relative"
       title={isResting ? `${player.name} (กำลังพัก)` : undefined}
     >
       {isEditMode && (

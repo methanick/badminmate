@@ -33,7 +33,7 @@ export default function HomePage() {
 
   // ===== state - ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS =====
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isCopyDisabled, setIsCopyDisabled] = useLocalStorage<boolean>(
+  const [isCopyDisabled] = useLocalStorage<boolean>(
     "badminton-copy-disabled",
     false,
   );
@@ -155,38 +155,61 @@ export default function HomePage() {
             </button>
           </div>
 
-          {/* Mobile/Tablet Tabs */}
-          <div className="lg:hidden">
-            <Tabs defaultValue="add" className="w-full">
+          {/* Desktop Layout */}
+          <div className="">
+            <Tabs defaultValue="players" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="add">เพิ่มคน</TabsTrigger>
-                <TabsTrigger value="court">เลือกคนลงสนาม</TabsTrigger>
+                <TabsTrigger value="players">ผู้เล่น</TabsTrigger>
+                <TabsTrigger value="courts">สนาม</TabsTrigger>
                 <TabsTrigger value="history">ประวัติ</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="add" className="space-y-4">
-                <PlayerGrid
-                  players={players}
-                  courts={courts}
-                  restingPlayers={restingPlayers}
-                  onRemoveFromRest={(playerId) => {
-                    setRestingPlayers((prev) =>
-                      prev.filter((p) => p.id !== playerId),
-                    );
-                  }}
-                  onEditPlayer={updatePlayerDetails}
-                  isEditMode={isEditMode}
-                />
-                <AddPlayerForm
-                  onAddPlayer={addPlayer}
-                  onClearAllPlayers={clearAllPlayers}
-                  onResetGamesPlayed={resetAllGamesPlayed}
-                  isEditMode={isEditMode}
-                  onEditModeChange={setIsEditMode}
-                />
+              <TabsContent value="players" className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <PlayerGrid
+                      players={players}
+                      courts={courts}
+                      restingPlayers={restingPlayers}
+                      onRemoveFromRest={(playerId) => {
+                        setRestingPlayers((prev) =>
+                          prev.filter((p) => p.id !== playerId),
+                        );
+                      }}
+                      onEditPlayer={updatePlayerDetails}
+                      onAddPlayer={addPlayer}
+                      isEditMode={isEditMode}
+                    />
+                    <AddPlayerForm
+                      onAddPlayer={addPlayer}
+                      onClearAllPlayers={clearAllPlayers}
+                      onResetGamesPlayed={resetAllGamesPlayed}
+                      isEditMode={isEditMode}
+                      onEditModeChange={setIsEditMode}
+                    />
+                  </div>
+                  <div>
+                    <CourtGrid
+                      courts={courts}
+                      players={players}
+                      restingPlayers={restingPlayers}
+                      onDeleteCourt={deleteCourt}
+                      onUpdateCourtName={updateCourtName}
+                      onRemovePlayer={removePlayerFromSlot}
+                      onAddPlayerToSlot={addPlayerToSlot}
+                      onStartGame={startGame}
+                      onEndGame={endGame}
+                      onAutoMatch={handleAutoMatch}
+                      onAddCourt={addCourt}
+                      onClearAllCourts={clearAllCourts}
+                      strictMode={strictMode}
+                      onStrictModeChange={setStrictMode}
+                    />
+                  </div>
+                </div>
               </TabsContent>
 
-              <TabsContent value="court" className="space-y-4">
+              <TabsContent value="courts" className="space-y-4">
                 <CourtGrid
                   courts={courts}
                   players={players}
@@ -209,49 +232,6 @@ export default function HomePage() {
                 <HistoryPanel showTitle />
               </TabsContent>
             </Tabs>
-          </div>
-
-          {/* Desktop Layout */}
-          <div className="hidden lg:block">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <PlayerGrid
-                  players={players}
-                  courts={courts}
-                  restingPlayers={restingPlayers}
-                  onRemoveFromRest={(playerId) => {
-                    setRestingPlayers((prev) =>
-                      prev.filter((p) => p.id !== playerId),
-                    );
-                  }}
-                  onEditPlayer={updatePlayerDetails}
-                  isEditMode={isEditMode}
-                />
-                <AddPlayerForm
-                  onAddPlayer={addPlayer}
-                  onClearAllPlayers={clearAllPlayers}
-                  onResetGamesPlayed={resetAllGamesPlayed}
-                  isEditMode={isEditMode}
-                  onEditModeChange={setIsEditMode}
-                />
-              </div>
-              <CourtGrid
-                courts={courts}
-                players={players}
-                restingPlayers={restingPlayers}
-                onDeleteCourt={deleteCourt}
-                onUpdateCourtName={updateCourtName}
-                onRemovePlayer={removePlayerFromSlot}
-                onAddPlayerToSlot={addPlayerToSlot}
-                onStartGame={startGame}
-                onEndGame={endGame}
-                onAutoMatch={handleAutoMatch}
-                onAddCourt={addCourt}
-                onClearAllCourts={clearAllCourts}
-                strictMode={strictMode}
-                onStrictModeChange={setStrictMode}
-              />
-            </div>
           </div>
         </div>
       </main>

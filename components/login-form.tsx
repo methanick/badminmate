@@ -44,7 +44,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-50">
+    <div className="flex items-center justify-center min-h-screen bg-linear-to-br from-blue-100 to-blue-50">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="bg-blue-600 text-white">
           <CardTitle className="text-center text-2xl">BadminMate</CardTitle>

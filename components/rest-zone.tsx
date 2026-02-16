@@ -85,7 +85,7 @@ function DraggableRestingPlayer({
             e.preventDefault();
             onRemove(player.id);
           }}
-          className="ml-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-600 cursor-pointer flex-shrink-0"
+          className="ml-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-600 cursor-pointer shrink-0"
         >
           <X className="w-3 h-3" />
         </button>
