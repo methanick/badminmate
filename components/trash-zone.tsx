@@ -14,9 +14,9 @@ export function TrashZone() {
           isOver ? "bg-red-100 border-red-400 border-2" : ""
         }`}
       >
-        <div className="p-4 flex flex-col items-center justify-center h-full">
+        <div className="p-2 flex flex-col items-center justify-center h-full min-h-20">
           <Trash2
-            className={`w-10 h-10 transition-colors ${
+            className={`w-6 h-6 transition-colors ${
               isOver ? "text-red-600" : "text-gray-400"
             }`}
           />

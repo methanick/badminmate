@@ -49,10 +49,12 @@ export function AddPlayerForm({
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow mt-8">
-      <div className="flex gap-2">
+    <div className="bg-white rounded-xl p-2 shadow mt-4">
+      <div className="flex gap-1 text-xs">
         <Field>
-          <FieldLabel htmlFor="input-field-name">เพิ่มผู้เล่น</FieldLabel>
+          <FieldLabel htmlFor="input-field-name" className="text-xs">
+            เพิ่มผู้เล่น
+          </FieldLabel>
           <Input
             id="input-field-name"
             type="text"
@@ -60,22 +62,25 @@ export function AddPlayerForm({
             value={name}
             onChange={(e) => setName(e.target.value)}
             onKeyPress={handleKeyPress}
+            className="h-8 text-xs"
           />
         </Field>
         <Field>
-          <FieldLabel htmlFor="select-level">ระดับ</FieldLabel>
+          <FieldLabel htmlFor="select-level" className="text-xs">
+            ระดับ
+          </FieldLabel>
           <Select
             value={level}
             onValueChange={(value) => setLevel(value as Level)}
           >
-            <SelectTrigger className="w-40" id="select-level">
+            <SelectTrigger className="w-32 h-8 text-xs" id="select-level">
               <SelectValue placeholder="Select level" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>ระดับผู้เล่น</SelectLabel>
+                <SelectLabel className="text-xs">ระดับผู้เล่น</SelectLabel>
                 {Object.values(Level).map((lv) => (
-                  <SelectItem key={lv} value={lv}>
+                  <SelectItem key={lv} value={lv} className="text-xs">
                     {lv}
                   </SelectItem>
                 ))}
@@ -83,34 +88,39 @@ export function AddPlayerForm({
             </SelectContent>
           </Select>
         </Field>
-        <div className="mt-8">
-          <Button onClick={handleAddPlayer}>Add</Button>
+        <div className="mt-5">
+          <Button onClick={handleAddPlayer} size="sm" className="h-8 text-xs">
+            Add
+          </Button>
         </div>
       </div>
-      <div className="mt-4 flex justify-end gap-2">
+      <div className="mt-2 flex justify-end gap-1 flex-wrap">
         <Button
           onClick={() => onEditModeChange?.(!isEditMode)}
           variant={isEditMode ? "default" : "outline"}
-          className={
+          className={`text-xs h-8 py-1 ${
             isEditMode
               ? "bg-blue-600 hover:bg-blue-700"
               : "border-blue-500 text-blue-600 hover:bg-blue-50"
-          }
+          }`}
+          size="sm"
         >
-          <Pencil className="h-4 w-4 mr-2" />
+          <Pencil className="h-3 w-3 mr-1" />
           {isEditMode ? "เสร็จแก้ไข" : "แก้ไขผู้เล่น"}
         </Button>
         <Button
           onClick={onResetGamesPlayed}
           variant="outline"
-          className="border-orange-500 text-orange-600 hover:bg-orange-50"
+          className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs h-8 py-1"
+          size="sm"
         >
           รีเซ็ตจำนวนเกม
         </Button>
         <Button
           onClick={onClearAllPlayers}
           variant="outline"
-          className="border-red-500 text-red-600 hover:bg-red-50"
+          className="border-red-500 text-red-600 hover:bg-red-50 text-xs h-8 py-1"
+          size="sm"
         >
           ลบผู้เล่นทั้งหมด
         </Button>

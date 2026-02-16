@@ -61,7 +61,7 @@ export function PlayerSlot({
       style={{
         backgroundColor: player ? backgroundColor : undefined,
       }}
-      className={`flex-1 border-2 border-dashed rounded-lg p-3 min-h-[60px] flex items-center justify-center transition-colors ${
+      className={`flex-1 border-2 border-dashed rounded-lg p-1.5 min-h-[50px] flex items-center justify-center transition-colors ${
         isOver ? "bg-blue-100 border-blue-400" : "border-gray-300"
       } ${!player ? "bg-white" : ""} ${disabled ? "opacity-60" : ""}`}
     >
@@ -204,13 +204,13 @@ function DraggablePlayerInSlot({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute -top-2 -right-2 h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+          className="absolute -top-1 -right-1 h-3.5 w-3.5 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
           onClick={(e) => {
             e.stopPropagation();
             onRemove();
           }}
         >
-          <X className="h-3 w-3" />
+          <X className="h-2.5 w-2.5" />
         </Button>
       )}
       <div
@@ -218,8 +218,12 @@ function DraggablePlayerInSlot({
         {...(disabled ? {} : attributes)}
         className={disabled ? "" : "cursor-grab active:cursor-grabbing"}
       >
-        <p className="text-sm font-medium text-white">{player.name}</p>
-        <p className="text-xs text-white opacity-90">{player.level}</p>
+        <p className="text-xs font-medium text-white leading-tight">
+          {player.name}
+        </p>
+        <p className="text-xs text-white opacity-90 leading-tight">
+          {player.level}
+        </p>
       </div>
     </div>
   );

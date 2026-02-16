@@ -89,12 +89,14 @@ export function PlayerBox({
 
   return (
     <>
-      <Card className="w-full max-w-full">
-        <CardHeader>
-          <CardTitle>{level && LevelConfig[level].label}</CardTitle>
+      <Card className="w-full max-w-full p-1 gap-0">
+        <CardHeader className="p-2 pb-0">
+          <CardTitle className="text-sm">
+            {level && LevelConfig[level].label}
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
+        <CardContent className="p-2">
+          <div className="flex flex-wrap gap-1">
             {sortedPlayers.length > 0 ? (
               sortedPlayers.map((player) => (
                 <DraggablePlayer
@@ -109,7 +111,7 @@ export function PlayerBox({
                 />
               ))
             ) : (
-              <p className="text-sm text-gray-500">ไม่มีผู้เล่น</p>
+              <p className="text-xs text-gray-500">ไม่มีผู้เล่น</p>
             )}
           </div>
         </CardContent>
@@ -229,13 +231,13 @@ function DraggablePlayer({
       style={style}
       {...(isDisabled ? {} : listeners)}
       {...(isDisabled ? {} : attributes)}
-      className="rounded-sm p-2 text-white text-xs w-20 text-start relative"
+      className="rounded-sm p-1.5 text-white text-xs w-20 text-start relative text-center"
       title={isResting ? `${player.name} (กำลังพัก)` : undefined}
     >
       {isEditMode && (
         <button
           type="button"
-          className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-white/90 text-gray-700 flex items-center justify-center hover:bg-white"
+          className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 rounded-full bg-white/90 text-gray-700 flex items-center justify-center hover:bg-white"
           onPointerDown={(e) => {
             e.stopPropagation();
           }}
@@ -245,10 +247,10 @@ function DraggablePlayer({
           }}
           aria-label="แก้ไขผู้เล่น"
         >
-          <Pencil className="h-3 w-3" />
+          <Pencil className="h-2.5 w-2.5" />
         </button>
       )}
-      <span className="line-clamp-1">{`${player.gamesPlayed} | ${player.name}${isResting ? " 💤" : ""}`}</span>
+      <span className="line-clamp-2 text-xs leading-tight">{`${player.gamesPlayed} | ${player.name}${isResting ? "💤" : ""}`}</span>
     </div>
   );
 }

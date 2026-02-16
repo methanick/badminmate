@@ -99,7 +99,8 @@ export function HistoryPanel({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        {/* Main history - 50% on desktop, 100% on mobile */}
         <div className="lg:col-span-2">
           <Card className="p-3 sm:p-4">
             <h2 className="text-base sm:text-lg font-semibold mb-3">
@@ -164,12 +165,13 @@ export function HistoryPanel({
           </Card>
         </div>
 
-        <div className="space-y-6">
+        {/* Right section with two cards - 25% each on desktop, 100% each on mobile */}
+        <div className="lg:col-span-1 space-y-4">
           <Card className="p-4">
             <h2 className="text-base sm:text-lg font-semibold mb-3">
               คู่ที่เล่นด้วยกันบ่อย
             </h2>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
               {Array.from(pairings.entries())
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10)
@@ -213,12 +215,13 @@ export function HistoryPanel({
                 })}
             </div>
           </Card>
-
+        </div>
+        <div className="lg:col-span-1 space-x-4">
           <Card className="p-4">
             <h2 className="text-base sm:text-lg font-semibold mb-3">
               คู่ที่เจอกันบ่อย (ฝ่ายตรงข้าม)
             </h2>
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto">
               {Array.from(opponents.entries())
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10)

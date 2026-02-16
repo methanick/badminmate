@@ -63,32 +63,36 @@ export function CourtGrid({
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">สนาม ({courts.length})</h2>
-        <div className="flex gap-2 items-center">
+      <div className="flex items-center justify-between mb-2 gap-2">
+        <h2 className="text-lg font-bold">สนาม ({courts.length})</h2>
+        <div className="flex gap-1 items-center flex-wrap">
           <div className="flex items-center gap-2">
             <Switch
               checked={strictMode}
               onCheckedChange={onStrictModeChange}
               aria-label="Toggle strict mode"
             />
-            <span className="text-sm">ไม่เจอคู่เดิม</span>
+            <span className="text-xs">ไม่เจอคู่เดิม</span>
           </div>
           <Link href="/history">
-            <Button variant="outline">ประวัติ</Button>
+            <Button variant="outline" size="sm" className="text-xs h-8 py-1">
+              ประวัติ
+            </Button>
           </Link>
-          <Button onClick={onAddCourt}>เพิ่มสนาม</Button>
+          <Button onClick={onAddCourt} size="sm" className="text-xs h-8 py-1">
+            เพิ่มสนาม
+          </Button>
           <Button
             onClick={onClearAllCourts}
             variant="outline"
-            className="border-orange-500 text-orange-600 hover:bg-orange-50"
+            className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs h-8 py-1"
             disabled={courts.length === 0}
           >
             ล้างสนามทั้งหมด
           </Button>
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-2 overflow-y-auto">
         {courts.map((court) => (
           <CourtCard
             key={court.id}

@@ -21,14 +21,14 @@ export function RestZone({ restingPlayers, onRemoveFromRest }: RestZoneProps) {
           isOver ? "bg-yellow-100 border-yellow-400 border-2" : "bg-yellow-50"
         }`}
       >
-        <div className="p-4">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <p className="text-sm font-semibold text-yellow-700">พักชั่วคราว</p>
+        <div className="p-2">
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <p className="text-xs font-semibold text-yellow-700">พักชั่วคราว</p>
             <span className="text-xs text-yellow-600">
               ({restingPlayers.length})
             </span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1">
             {restingPlayers.map((player) => (
               <DraggableRestingPlayer
                 key={player.id}
@@ -70,7 +70,7 @@ function DraggableRestingPlayer({
       className={`${isDragging ? "opacity-50" : ""}`}
     >
       <div
-        className="rounded text-white text-xs p-2 relative group cursor-move flex items-center justify-between min-w-max"
+        className="rounded text-white text-xs p-1 relative group cursor-move flex items-center justify-between min-w-max"
         style={{
           backgroundColor: LevelConfig[player.level].color,
         }}

@@ -68,14 +68,14 @@ export function CourtCard({
   };
 
   return (
-    <Card className="p-4 relative">
+    <Card className="p-2 relative">
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-2 right-2 h-6 w-6 text-red-500 hover:text-red-700"
+        className="absolute top-1 right-1 h-5 w-5 text-red-500 hover:text-red-700"
         onClick={() => onDelete(court.id)}
       >
-        <X className="h-4 w-4" />
+        <X className="h-3 w-3" />
       </Button>
 
       {isEditing ? (
@@ -84,25 +84,25 @@ export function CourtCard({
           onChange={(e) => setEditName(e.target.value)}
           onBlur={handleSaveName}
           onKeyDown={handleKeyDown}
-          className="text-center font-semibold mb-4 h-8"
+          className="text-center font-semibold mb-2 h-7 text-sm"
           autoFocus
         />
       ) : (
         <h3
-          className="font-semibold text-center mb-4 cursor-pointer hover:text-blue-600"
+          className="font-semibold text-center mb-2 cursor-pointer hover:text-blue-600 text-sm"
           onClick={() => setIsEditing(true)}
         >
           {court.name}
         </h3>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-1">
         {/* Team 1 */}
-        <div className="space-y-2">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="space-y-1">
+          <p className="text-xs text-gray-500 text-center mb-1">
             ทีม 1 ({calculateTeamWeight(court.team1)})
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <PlayerSlot
               player={court.team1[0]}
               slotId={`court-${court.id}-team1-0`}
@@ -127,14 +127,16 @@ export function CourtCard({
         </div>
 
         {/* VS */}
-        <div className="text-center font-bold text-gray-400">VS</div>
+        <div className="text-center font-bold text-gray-400 text-xs my-1">
+          VS
+        </div>
 
         {/* Team 2 */}
-        <div className="space-y-2">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="space-y-1">
+          <p className="text-xs text-gray-500 text-center mb-1">
             ทีม 2 ({calculateTeamWeight(court.team2)})
           </p>
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <PlayerSlot
               player={court.team2[0]}
               slotId={`court-${court.id}-team2-0`}
@@ -159,20 +161,20 @@ export function CourtCard({
         </div>
 
         {/* Start/End Button */}
-        <div className="mt-4 space-y-2">
+        <div className="mt-2 space-y-1">
           {/* Auto Match and Clear Button */}
           {!court.isPlaying && (
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               <Button
                 onClick={() => onAutoMatch(court.id)}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 h-8"
               >
                 จับคู่อัตโนมัติ
               </Button>
               <Button
                 onClick={() => onEndGame(court.id)}
                 variant="outline"
-                className="border-orange-500 text-orange-600 hover:bg-orange-50"
+                className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs py-1 h-8"
                 disabled={
                   !court.team1[0] &&
                   !court.team1[1] &&
@@ -189,7 +191,7 @@ export function CourtCard({
           {!court.isPlaying ? (
             <Button
               onClick={() => onStartGame(court.id)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1 h-8"
               disabled={
                 !court.team1[0] ||
                 !court.team1[1] ||
@@ -202,7 +204,7 @@ export function CourtCard({
           ) : (
             <Button
               onClick={() => onEndGame(court.id)}
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-1 h-8"
             >
               End Game
             </Button>
