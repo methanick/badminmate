@@ -68,7 +68,7 @@ export function CourtCard({
   };
 
   return (
-    <Card className="p-2 relative">
+    <Card className="p-2 gap-1 relative">
       <Button
         variant="ghost"
         size="icon"
