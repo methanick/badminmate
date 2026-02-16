@@ -9,6 +9,7 @@ interface AutoMatchParams {
   courts: Court[];
   gameHistory: GameHistory[];
   restingPlayers: Player[];
+  strictMode?: boolean; // ไม่ให้เจอคู่เดิมเลย
 }
 
 const levelWeight: Record<Level, number> = {
@@ -25,6 +26,7 @@ export function autoMatchPlayers({
   courts,
   gameHistory,
   restingPlayers,
+  strictMode = false,
 }: AutoMatchParams): {
   team1: [Player, Player];
   team2: [Player, Player];
@@ -49,14 +51,29 @@ export function autoMatchPlayers({
   // หาค่า gamesPlayed ที่น้อยที่สุด
   const minGames = availablePlayers[0].gamesPlayed;
 
-  // สร้าง pool ของผู้เล่นที่มี gamesPlayed ใกล้เคียงกับค่าน้อยสุด (ไม่เกิน +2)
-  const candidatePool = availablePlayers.filter(
-    (p) => p.gamesPlayed <= minGames + 2,
+  // สร้าง pool ของผู้เล่นที่มี gamesPlayed ใกล้เคียงกับค่าน้อยสุด (ไม่เกิน +1)
+  let candidatePool = availablePlayers.filter(
+    (p) => p.gamesPlayed === minGames,
   );
 
-  // Random เลือก 4 คนจาก pool
-  const shuffled = [...candidatePool].sort(() => Math.random() - 0.5);
-  const selectedPlayers = shuffled.slice(0, 4);
+  // ถ้าไม่ครบ 4 คน ให้เพิ่มจากคนที่เล่น +1 เกมส์
+  if (candidatePool.length < 4) {
+    const additionalPlayers = availablePlayers
+      .filter((p) => p.gamesPlayed === minGames + 1)
+      .slice(0, 4 - candidatePool.length); // เพิ่มเฉพาะจำนวนที่ขาด
+    candidatePool.push(...additionalPlayers);
+  }
+
+  if (candidatePool.length < 4) {
+    return null;
+  }
+
+  candidatePool = candidatePool.filter((p) => p.gamesPlayed <= minGames + 1);
+
+  // สุ่มเลือก 4 คนจาก candidate pool
+  const selectedPlayers = candidatePool
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 4);
 
   // สร้างฟังก์ชันนับว่าคู่นี้เล่นด้วยกันกี่ครั้งแล้ว
   const getTeammateCount = (p1: Player, p2: Player): number => {
@@ -81,9 +98,11 @@ export function autoMatchPlayers({
   };
 
   // หาวิธีแบ่งที่ดีที่สุด
-  let bestTeam1: Player[] = [];
-  let bestTeam2: Player[] = [];
-  let bestScore = -Infinity;
+  const allDivisions: Array<{
+    team1: Player[];
+    team2: Player[];
+    score: number;
+  }> = [];
 
   // ลองทุกการแบ่งที่เป็นไปได้ (combinations of 2 from 4)
   for (let i = 0; i < 4; i++) {
@@ -113,6 +132,11 @@ export function autoMatchPlayers({
         getOpponentCount(team1[1], team2[0]) +
         getOpponentCount(team1[1], team2[1]);
 
+      // ในโหมด strict: ข้ามการแบ่งนี้ถ้ามีการเจอกันมาก่อน
+      if (strictMode && opponentCount > 0) {
+        continue;
+      }
+
       // คำนวณคะแนน: ยิ่งเล่นด้วยกันน้อย + เจอกันน้อย + สมดุล = ดีกว่า
       const score =
         -team1TeammateCount * 30 - // ลดคะแนนถ้าทีม1 เล่นด้วยกันบ่อย
@@ -120,20 +144,38 @@ export function autoMatchPlayers({
         opponentCount * 10 - // ลดคะแนนถ้าเจอกันฝั่งตรงข้ามบ่อย
         weightDiff * 80; // ลดคะแนนถ้าไม่สมดุล
 
-      if (score > bestScore) {
-        bestScore = score;
-        bestTeam1 = team1;
-        bestTeam2 = team2;
-      }
+      allDivisions.push({ team1, team2, score });
     }
   }
 
-  if (bestTeam1.length !== 2 || bestTeam2.length !== 2) {
+  // เรียงลำดับตามคะแนนจากสูงไปต่ำ
+  allDivisions.sort((a, b) => b.score - a.score);
+
+  if (allDivisions.length === 0) {
+    return null;
+  }
+
+  // หาคะแนนสูงสุด และเลือก divisions ที่มีคะแนนใกล้เคียง (ภายใน 5% ของช่วง)
+  const maxScore = allDivisions[0].score;
+  const minScore = allDivisions[allDivisions.length - 1].score;
+  const scoreRange = maxScore - minScore || 1;
+  const threshold = maxScore - scoreRange * 0.1; // เลือก top 10% ของคะแนน
+
+  const goodDivisions = allDivisions.filter((d) => d.score >= threshold);
+
+  // สุ่มเลือกจาก divisions ที่ดีพอ
+  const selectedDivision =
+    goodDivisions[Math.floor(Math.random() * goodDivisions.length)];
+
+  if (
+    selectedDivision.team1.length !== 2 ||
+    selectedDivision.team2.length !== 2
+  ) {
     return null;
   }
 
   return {
-    team1: [bestTeam1[0], bestTeam1[1]],
-    team2: [bestTeam2[0], bestTeam2[1]],
+    team1: [selectedDivision.team1[0], selectedDivision.team1[1]],
+    team2: [selectedDivision.team2[0], selectedDivision.team2[1]],
   };
 }

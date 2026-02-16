@@ -28,7 +28,7 @@ export function RestZone({ restingPlayers, onRemoveFromRest }: RestZoneProps) {
               ({restingPlayers.length})
             </span>
           </div>
-          <div className="space-y-1 max-h-32 overflow-y-auto">
+          <div className="flex flex-wrap gap-2">
             {restingPlayers.map((player) => (
               <DraggableRestingPlayer
                 key={player.id}
@@ -67,18 +67,16 @@ function DraggableRestingPlayer({
     <div
       ref={setNodeRef}
       style={style}
-      className={`text-xs rounded-sm p-2 w-20 ${
-        isDragging ? "opacity-50" : ""
-      }`}
-      title={`${player.name} - ${player.level}`}
+      className={`${isDragging ? "opacity-50" : ""}`}
     >
       <div
-        className="rounded text-white text-start relative group cursor-move"
+        className="rounded text-white text-xs p-2 relative group cursor-move flex items-center justify-between min-w-max"
         style={{
           backgroundColor: LevelConfig[player.level].color,
         }}
         {...listeners}
         {...attributes}
+        title={`${player.name} - ${player.level}`}
       >
         <span className="line-clamp-1">{`${player.gamesPlayed} | ${player.name}`}</span>
         <button
@@ -87,7 +85,7 @@ function DraggableRestingPlayer({
             e.preventDefault();
             onRemove(player.id);
           }}
-          className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-600 cursor-pointer"
+          className="ml-2 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-red-600 cursor-pointer flex-shrink-0"
         >
           <X className="w-3 h-3" />
         </button>

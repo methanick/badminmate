@@ -58,6 +58,8 @@ export default function HomePage() {
     setDeleteCourtConfirmOpen,
     clearAllPlayersConfirmOpen,
     setClearAllPlayersConfirmOpen,
+    strictMode,
+    setStrictMode,
     resetGamesPlayedConfirmOpen,
     setResetGamesPlayedConfirmOpen,
   } = useGameHandlers({
@@ -128,6 +130,8 @@ export default function HomePage() {
               onAutoMatch={handleAutoMatch}
               onAddCourt={addCourt}
               onClearAllCourts={clearAllCourts}
+              strictMode={strictMode}
+              onStrictModeChange={setStrictMode}
             />
           </div>
         </div>

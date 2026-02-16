@@ -4,6 +4,7 @@ import { Court } from "@/model/court.model";
 import { GameHistory } from "@/model/game-history.model";
 import { Player } from "@/model/player.model";
 import { useState } from "react";
+import { useLocalStorage } from "./use-local-storage";
 
 interface UseGameHandlersParams {
   players: Player[];
@@ -45,6 +46,11 @@ export function useGameHandlers({
 
   const [resetGamesPlayedConfirmOpen, setResetGamesPlayedConfirmOpen] =
     useState(false);
+
+  const [strictMode, setStrictMode] = useLocalStorage<boolean>(
+    "badminton-strict-mode",
+    false,
+  );
 
   const addPlayer = (name: string, level: Level) => {
     setPlayers((prev) => [
@@ -179,6 +185,7 @@ export function useGameHandlers({
       courts,
       restingPlayers,
       gameHistory,
+      strictMode,
     });
 
     if (!result) {
@@ -300,5 +307,7 @@ export function useGameHandlers({
     setClearAllPlayersConfirmOpen,
     resetGamesPlayedConfirmOpen,
     setResetGamesPlayedConfirmOpen,
+    strictMode,
+    setStrictMode,
   };
 }

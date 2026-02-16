@@ -2,6 +2,7 @@
 
 import { CourtCard } from "@/components/court-card";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Court } from "@/model/court.model";
 import Link from "next/link";
 
@@ -19,6 +20,8 @@ interface CourtGridProps {
   onAutoMatch: (courtId: number) => void;
   onAddCourt: () => void;
   onClearAllCourts: () => void;
+  strictMode?: boolean;
+  onStrictModeChange?: (value: boolean) => void;
 }
 
 export function CourtGrid({
@@ -31,12 +34,22 @@ export function CourtGrid({
   onAutoMatch,
   onAddCourt,
   onClearAllCourts,
+  strictMode = false,
+  onStrictModeChange,
 }: CourtGridProps) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-2xl font-bold">สนาม ({courts.length})</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={strictMode}
+              onCheckedChange={onStrictModeChange}
+              aria-label="Toggle strict mode"
+            />
+            <span className="text-sm">ไม่เจอคู่เดิม</span>
+          </div>
           <Link href="/history">
             <Button variant="outline">ประวัติ</Button>
           </Link>
