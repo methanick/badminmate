@@ -10,12 +10,19 @@ import { PlayerSlot } from "./player-slot";
 
 interface CourtCardProps {
   court: Court;
+  availablePlayers: Player[];
   onDelete: (id: number) => void;
   onUpdateName: (id: number, name: string) => void;
   onRemovePlayer: (
     courtId: number,
     team: "team1" | "team2",
     slotIndex: number,
+  ) => void;
+  onAddPlayerToSlot: (
+    courtId: number,
+    team: "team1" | "team2",
+    slotIndex: number,
+    playerId: number,
   ) => void;
   onStartGame: (courtId: number) => void;
   onEndGame: (courtId: number) => void;
@@ -24,9 +31,11 @@ interface CourtCardProps {
 
 export function CourtCard({
   court,
+  availablePlayers,
   onDelete,
   onUpdateName,
   onRemovePlayer,
+  onAddPlayerToSlot,
   onStartGame,
   onEndGame,
   onAutoMatch,
@@ -98,12 +107,20 @@ export function CourtCard({
               player={court.team1[0]}
               slotId={`court-${court.id}-team1-0`}
               onRemove={() => onRemovePlayer(court.id, "team1", 0)}
+              onAddPlayer={(playerId) =>
+                onAddPlayerToSlot(court.id, "team1", 0, playerId)
+              }
+              availablePlayers={availablePlayers}
               disabled={court.isPlaying}
             />
             <PlayerSlot
               player={court.team1[1]}
               slotId={`court-${court.id}-team1-1`}
               onRemove={() => onRemovePlayer(court.id, "team1", 1)}
+              onAddPlayer={(playerId) =>
+                onAddPlayerToSlot(court.id, "team1", 1, playerId)
+              }
+              availablePlayers={availablePlayers}
               disabled={court.isPlaying}
             />
           </div>
@@ -122,12 +139,20 @@ export function CourtCard({
               player={court.team2[0]}
               slotId={`court-${court.id}-team2-0`}
               onRemove={() => onRemovePlayer(court.id, "team2", 0)}
+              onAddPlayer={(playerId) =>
+                onAddPlayerToSlot(court.id, "team2", 0, playerId)
+              }
+              availablePlayers={availablePlayers}
               disabled={court.isPlaying}
             />
             <PlayerSlot
               player={court.team2[1]}
               slotId={`court-${court.id}-team2-1`}
               onRemove={() => onRemovePlayer(court.id, "team2", 1)}
+              onAddPlayer={(playerId) =>
+                onAddPlayerToSlot(court.id, "team2", 1, playerId)
+              }
+              availablePlayers={availablePlayers}
               disabled={court.isPlaying}
             />
           </div>

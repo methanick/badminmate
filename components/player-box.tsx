@@ -1,14 +1,37 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Level, LevelConfig } from "@/constants/level";
 import { Court } from "@/model/court.model";
 import { Player } from "@/model/player.model";
 import { useDraggable } from "@dnd-kit/core";
+import { Pencil } from "lucide-react";
+import { useMemo, useState } from "react";
 
 interface PlayerBoxProps {
   level?: Level;
   players?: Player[];
   courts?: Court[];
   restingPlayers?: Player[];
+  onEditPlayer: (playerId: number, name: string, level: Level) => void;
+  isEditMode?: boolean;
 }
 
 export function PlayerBox({
@@ -16,8 +39,13 @@ export function PlayerBox({
   players,
   courts,
   restingPlayers,
+  onEditPlayer,
+  isEditMode = false,
 }: PlayerBoxProps) {
-  console.log("PlayerBox ~ players:", players);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editLevel, setEditLevel] = useState<Level>(Level.Beginner);
 
   // เช็คว่า player อยู่ใน court หรือไม่
   const isPlayerInCourt = (playerId: number): boolean => {
@@ -50,30 +78,114 @@ export function PlayerBox({
       })
     : [];
 
+  const levelOptions = useMemo(() => Object.values(Level), []);
+
+  const openEdit = (player: Player) => {
+    setEditingPlayer(player);
+    setEditName(player.name);
+    setEditLevel(player.level);
+    setEditOpen(true);
+  };
+
   return (
-    <Card className="w-full max-w-full">
-      <CardHeader>
-        <CardTitle>{level && LevelConfig[level].label}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap gap-2">
-          {sortedPlayers.length > 0 ? (
-            sortedPlayers.map((player) => (
-              <DraggablePlayer
-                key={player.id}
-                player={player}
-                isDisabled={
-                  isPlayerInCourt(player.id) || isPlayerResting(player.id)
-                }
-                isResting={isPlayerResting(player.id)}
+    <>
+      <Card className="w-full max-w-full">
+        <CardHeader>
+          <CardTitle>{level && LevelConfig[level].label}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {sortedPlayers.length > 0 ? (
+              sortedPlayers.map((player) => (
+                <DraggablePlayer
+                  key={player.id}
+                  player={player}
+                  isDisabled={
+                    isPlayerInCourt(player.id) || isPlayerResting(player.id)
+                  }
+                  isResting={isPlayerResting(player.id)}
+                  onEdit={() => openEdit(player)}
+                  isEditMode={isEditMode}
+                />
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">ไม่มีผู้เล่น</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog
+        open={editOpen}
+        onOpenChange={(open) => {
+          setEditOpen(open);
+          // Reset editingOpen flag when dialog closes
+          if (!open) {
+            setTimeout(() => {
+              // Dialog close animation
+            }, 100);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>แก้ไขผู้เล่น</DialogTitle>
+            <DialogDescription>เปลี่ยนชื่อหรือระดับฝีมือ</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <label className="text-sm font-medium">ชื่อ</label>
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="ชื่อผู้เล่น"
               />
-            ))
-          ) : (
-            <p className="text-sm text-gray-500">ไม่มีผู้เล่น</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">ระดับ</label>
+              <Select
+                value={editLevel}
+                onValueChange={(value) => setEditLevel(value as Level)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="เลือกระดับ" />
+                </SelectTrigger>
+                <SelectContent>
+                  {levelOptions.map((lv) => (
+                    <SelectItem key={lv} value={lv}>
+                      {LevelConfig[lv].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setEditOpen(false);
+              }}
+            >
+              ยกเลิก
+            </Button>
+            <Button
+              onClick={() => {
+                if (!editingPlayer) return;
+                const trimmed = editName.trim();
+                if (!trimmed) return;
+                onEditPlayer(editingPlayer.id, trimmed, editLevel);
+                setEditOpen(false);
+              }}
+            >
+              บันทึก
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -81,10 +193,14 @@ function DraggablePlayer({
   player,
   isDisabled,
   isResting,
+  onEdit,
+  isEditMode = false,
 }: {
   player: Player;
   isDisabled: boolean;
   isResting?: boolean;
+  onEdit: () => void;
+  isEditMode?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
@@ -113,9 +229,25 @@ function DraggablePlayer({
       style={style}
       {...(isDisabled ? {} : listeners)}
       {...(isDisabled ? {} : attributes)}
-      className="rounded-sm p-2 text-white text-xs w-20 text-start"
+      className="rounded-sm p-2 text-white text-xs w-20 text-start relative"
       title={isResting ? `${player.name} (กำลังพัก)` : undefined}
     >
+      {isEditMode && (
+        <button
+          type="button"
+          className="absolute -top-2 -right-2 h-4 w-4 rounded-full bg-white/90 text-gray-700 flex items-center justify-center hover:bg-white"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEdit();
+          }}
+          aria-label="แก้ไขผู้เล่น"
+        >
+          <Pencil className="h-3 w-3" />
+        </button>
+      )}
       <span className="line-clamp-1">{`${player.gamesPlayed} | ${player.name}${isResting ? " 💤" : ""}`}</span>
     </div>
   );

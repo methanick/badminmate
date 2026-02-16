@@ -12,6 +12,8 @@ interface PlayerGridProps {
   courts: Court[];
   restingPlayers: Player[];
   onRemoveFromRest: (playerId: number) => void;
+  onEditPlayer: (playerId: number, name: string, level: Level) => void;
+  isEditMode?: boolean;
 }
 
 export function PlayerGrid({
@@ -19,6 +21,8 @@ export function PlayerGrid({
   courts,
   restingPlayers,
   onRemoveFromRest,
+  onEditPlayer,
+  isEditMode = false,
 }: PlayerGridProps) {
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -32,6 +36,8 @@ export function PlayerGrid({
               players={levelPlayers}
               courts={courts}
               restingPlayers={restingPlayers}
+              onEditPlayer={onEditPlayer}
+              isEditMode={isEditMode}
             />
           </div>
         );

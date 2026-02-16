@@ -13,18 +13,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Level } from "@/constants/level";
+import { Pencil } from "lucide-react";
 import { useState } from "react";
 
 interface AddPlayerFormProps {
   onAddPlayer: (name: string, level: Level) => void;
   onClearAllPlayers: () => void;
   onResetGamesPlayed: () => void;
+  isEditMode?: boolean;
+  onEditModeChange?: (isEditing: boolean) => void;
 }
 
 export function AddPlayerForm({
   onAddPlayer,
   onClearAllPlayers,
   onResetGamesPlayed,
+  isEditMode = false,
+  onEditModeChange,
 }: AddPlayerFormProps) {
   const [name, setName] = useState("");
   const [level, setLevel] = useState<Level>(Level.Beginner);
@@ -83,6 +88,18 @@ export function AddPlayerForm({
         </div>
       </div>
       <div className="mt-4 flex justify-end gap-2">
+        <Button
+          onClick={() => onEditModeChange?.(!isEditMode)}
+          variant={isEditMode ? "default" : "outline"}
+          className={
+            isEditMode
+              ? "bg-blue-600 hover:bg-blue-700"
+              : "border-blue-500 text-blue-600 hover:bg-blue-50"
+          }
+        >
+          <Pencil className="h-4 w-4 mr-2" />
+          {isEditMode ? "เสร็จแก้ไข" : "แก้ไขผู้เล่น"}
+        </Button>
         <Button
           onClick={onResetGamesPlayed}
           variant="outline"

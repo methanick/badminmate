@@ -118,6 +118,83 @@ export function useGameHandlers({
     );
   };
 
+  const updatePlayerDetails = (
+    playerId: number,
+    name: string,
+    level: Level,
+  ) => {
+    setPlayers((prev) =>
+      prev.map((player) =>
+        player.id === playerId ? { ...player, name, level } : player,
+      ),
+    );
+
+    setRestingPlayers((prev) =>
+      prev.map((player) =>
+        player.id === playerId ? { ...player, name, level } : player,
+      ),
+    );
+
+    setCourts((prev) =>
+      prev.map((court) => {
+        const mapPlayer = (p: Player | null) =>
+          p && p.id === playerId ? { ...p, name, level } : p;
+
+        return {
+          ...court,
+          team1: [mapPlayer(court.team1[0]), mapPlayer(court.team1[1])],
+          team2: [mapPlayer(court.team2[0]), mapPlayer(court.team2[1])],
+        };
+      }),
+    );
+
+    setGameHistory((prev) =>
+      prev.map((game) => {
+        const mapPlayer = (p: Player) =>
+          p.id === playerId ? { ...p, name, level } : p;
+        return {
+          ...game,
+          team1: [mapPlayer(game.team1[0]), mapPlayer(game.team1[1])],
+          team2: [mapPlayer(game.team2[0]), mapPlayer(game.team2[1])],
+        };
+      }),
+    );
+  };
+
+  const addPlayerToSlot = (
+    courtId: number,
+    team: "team1" | "team2",
+    slotIndex: number,
+    playerId: number,
+  ) => {
+    const playerToAdd = players.find((p) => p.id === playerId);
+    if (!playerToAdd) return;
+
+    const playerAlreadyInCourt = courts.some(
+      (court) =>
+        court.team1.some((p) => p?.id === playerId) ||
+        court.team2.some((p) => p?.id === playerId),
+    );
+
+    if (playerAlreadyInCourt) return;
+
+    setCourts((prev) =>
+      prev.map((court) => {
+        if (court.id !== courtId) return court;
+
+        const newTeam = [...court[team]] as [Player | null, Player | null];
+        newTeam[slotIndex] = playerToAdd;
+
+        return {
+          ...court,
+          [team]: newTeam,
+        };
+      }),
+    );
+
+    setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
+  };
+
   const startGame = (courtId: number) => {
     const court = courts.find((c) => c.id === courtId);
     if (!court) return;
@@ -286,6 +363,8 @@ export function useGameHandlers({
     confirmDeleteCourt,
     updateCourtName,
     removePlayerFromSlot,
+    updatePlayerDetails,
+    addPlayerToSlot,
     startGame,
     endGame,
     handleAutoMatch,

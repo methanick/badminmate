@@ -3,7 +3,10 @@
 import { AddPlayerForm } from "@/components/add-player-form";
 import { ConfirmationDialogs } from "@/components/confirmation-dialogs";
 import { CourtGrid } from "@/components/court-grid";
+import { HistoryPanel } from "@/components/history-panel";
 import { PlayerGrid } from "@/components/player-grid";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useDisableCopy } from "@/hooks/use-disable-copy";
 import { useDragHandler } from "@/hooks/use-drag-handler";
 import { useGameHandlers } from "@/hooks/use-game-handlers";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -17,9 +20,18 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
+import { useState } from "react";
 
 export default function HomePage() {
   // ===== state =====
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isCopyDisabled, setIsCopyDisabled] = useLocalStorage<boolean>(
+    "badminton-copy-disabled",
+    false,
+  );
+
+  useDisableCopy(isCopyDisabled);
+
   const [players, setPlayers] = useLocalStorage<Player[]>(
     "badminton-players",
     [],
@@ -41,6 +53,8 @@ export default function HomePage() {
     confirmDeleteCourt,
     updateCourtName,
     removePlayerFromSlot,
+    updatePlayerDetails,
+    addPlayerToSlot,
     startGame,
     endGame,
     handleAutoMatch,
@@ -99,40 +113,105 @@ export default function HomePage() {
 
   return (
     <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-      <main className="flex h-screen gap-4 p-4 bg-gray-100 overflow-hidden">
-        {/* ================= LEFT ================= */}
-        <div className="w-screen bg-white rounded-xl p-4 shadow flex flex-col overflow-hidden">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="">
-              <PlayerGrid
-                players={players}
+      <main className="flex h-screen gap-4 p-4 bg-gray-100 overflow-auto lg:overflow-hidden">
+        <div className="w-screen bg-white rounded-xl p-4 shadow flex flex-col overflow-auto lg:overflow-hidden">
+          {/* Mobile/Tablet Tabs */}
+          <div className="lg:hidden">
+            <Tabs defaultValue="add" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="add">เพิ่มคน</TabsTrigger>
+                <TabsTrigger value="court">เลือกคนลงสนาม</TabsTrigger>
+                <TabsTrigger value="history">ประวัติ</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="add" className="space-y-4">
+                <PlayerGrid
+                  players={players}
+                  courts={courts}
+                  restingPlayers={restingPlayers}
+                  onRemoveFromRest={(playerId) => {
+                    setRestingPlayers((prev) =>
+                      prev.filter((p) => p.id !== playerId),
+                    );
+                  }}
+                  onEditPlayer={updatePlayerDetails}
+                  isEditMode={isEditMode}
+                />
+                <AddPlayerForm
+                  onAddPlayer={addPlayer}
+                  onClearAllPlayers={clearAllPlayers}
+                  onResetGamesPlayed={resetAllGamesPlayed}
+                  isEditMode={isEditMode}
+                  onEditModeChange={setIsEditMode}
+                />
+              </TabsContent>
+
+              <TabsContent value="court" className="space-y-4">
+                <CourtGrid
+                  courts={courts}
+                  players={players}
+                  restingPlayers={restingPlayers}
+                  onDeleteCourt={deleteCourt}
+                  onUpdateCourtName={updateCourtName}
+                  onRemovePlayer={removePlayerFromSlot}
+                  onAddPlayerToSlot={addPlayerToSlot}
+                  onStartGame={startGame}
+                  onEndGame={endGame}
+                  onAutoMatch={handleAutoMatch}
+                  onAddCourt={addCourt}
+                  onClearAllCourts={clearAllCourts}
+                  strictMode={strictMode}
+                  onStrictModeChange={setStrictMode}
+                />
+              </TabsContent>
+
+              <TabsContent value="history">
+                <HistoryPanel showTitle />
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden lg:block">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <PlayerGrid
+                  players={players}
+                  courts={courts}
+                  restingPlayers={restingPlayers}
+                  onRemoveFromRest={(playerId) => {
+                    setRestingPlayers((prev) =>
+                      prev.filter((p) => p.id !== playerId),
+                    );
+                  }}
+                  onEditPlayer={updatePlayerDetails}
+                  isEditMode={isEditMode}
+                />
+                <AddPlayerForm
+                  onAddPlayer={addPlayer}
+                  onClearAllPlayers={clearAllPlayers}
+                  onResetGamesPlayed={resetAllGamesPlayed}
+                  isEditMode={isEditMode}
+                  onEditModeChange={setIsEditMode}
+                />
+              </div>
+              <CourtGrid
                 courts={courts}
+                players={players}
                 restingPlayers={restingPlayers}
-                onRemoveFromRest={(playerId) => {
-                  setRestingPlayers((prev) =>
-                    prev.filter((p) => p.id !== playerId),
-                  );
-                }}
-              />
-              <AddPlayerForm
-                onAddPlayer={addPlayer}
-                onClearAllPlayers={clearAllPlayers}
-                onResetGamesPlayed={resetAllGamesPlayed}
+                onDeleteCourt={deleteCourt}
+                onUpdateCourtName={updateCourtName}
+                onRemovePlayer={removePlayerFromSlot}
+                onAddPlayerToSlot={addPlayerToSlot}
+                onStartGame={startGame}
+                onEndGame={endGame}
+                onAutoMatch={handleAutoMatch}
+                onAddCourt={addCourt}
+                onClearAllCourts={clearAllCourts}
+                strictMode={strictMode}
+                onStrictModeChange={setStrictMode}
               />
             </div>
-            <CourtGrid
-              courts={courts}
-              onDeleteCourt={deleteCourt}
-              onUpdateCourtName={updateCourtName}
-              onRemovePlayer={removePlayerFromSlot}
-              onStartGame={startGame}
-              onEndGame={endGame}
-              onAutoMatch={handleAutoMatch}
-              onAddCourt={addCourt}
-              onClearAllCourts={clearAllCourts}
-              strictMode={strictMode}
-              onStrictModeChange={setStrictMode}
-            />
           </div>
         </div>
       </main>

@@ -4,16 +4,25 @@ import { CourtCard } from "@/components/court-card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Court } from "@/model/court.model";
+import { Player } from "@/model/player.model";
 import Link from "next/link";
 
 interface CourtGridProps {
   courts: Court[];
+  players: Player[];
+  restingPlayers: Player[];
   onDeleteCourt: (id: number) => void;
   onUpdateCourtName: (id: number, name: string) => void;
   onRemovePlayer: (
     courtId: number,
     team: "team1" | "team2",
     slotIndex: number,
+  ) => void;
+  onAddPlayerToSlot: (
+    courtId: number,
+    team: "team1" | "team2",
+    slotIndex: number,
+    playerId: number,
   ) => void;
   onStartGame: (courtId: number) => void;
   onEndGame: (courtId: number) => void;
@@ -26,9 +35,12 @@ interface CourtGridProps {
 
 export function CourtGrid({
   courts,
+  players,
+  restingPlayers,
   onDeleteCourt,
   onUpdateCourtName,
   onRemovePlayer,
+  onAddPlayerToSlot,
   onStartGame,
   onEndGame,
   onAutoMatch,
@@ -37,6 +49,18 @@ export function CourtGrid({
   strictMode = false,
   onStrictModeChange,
 }: CourtGridProps) {
+  const playersInCourts = new Set<number>();
+  courts.forEach((court) => {
+    court.team1.forEach((p) => p && playersInCourts.add(p.id));
+    court.team2.forEach((p) => p && playersInCourts.add(p.id));
+  });
+
+  const restingPlayerIds = new Set(restingPlayers.map((p) => p.id));
+
+  const availablePlayers = players.filter(
+    (p) => !playersInCourts.has(p.id) && !restingPlayerIds.has(p.id),
+  );
+
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="flex items-center justify-between mb-4">
@@ -69,9 +93,11 @@ export function CourtGrid({
           <CourtCard
             key={court.id}
             court={court}
+            availablePlayers={availablePlayers}
             onDelete={onDeleteCourt}
             onUpdateName={onUpdateCourtName}
             onRemovePlayer={onRemovePlayer}
+            onAddPlayerToSlot={onAddPlayerToSlot}
             onStartGame={onStartGame}
             onEndGame={onEndGame}
             onAutoMatch={onAutoMatch}
