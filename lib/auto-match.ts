@@ -60,6 +60,7 @@ export function autoMatchPlayers({
   if (candidatePool.length < 4) {
     const additionalPlayers = availablePlayers
       .filter((p) => p.gamesPlayed === minGames + 1)
+      .sort(() => Math.random() - 0.5)
       .slice(0, 4 - candidatePool.length); // เพิ่มเฉพาะจำนวนที่ขาด
     candidatePool.push(...additionalPlayers);
   }
@@ -69,6 +70,7 @@ export function autoMatchPlayers({
   }
 
   candidatePool = candidatePool.filter((p) => p.gamesPlayed <= minGames + 1);
+  console.log("Candidate Pool:", candidatePool);
 
   // สุ่มเลือก 4 คนจาก candidate pool
   const selectedPlayers = candidatePool
