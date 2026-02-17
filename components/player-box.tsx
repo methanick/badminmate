@@ -63,17 +63,22 @@ export function PlayerBox({
     return restingPlayers.some((p) => p.id === playerId);
   };
 
-  // เรียง players: กำลังเล่นอยู่ไปท้าย, ที่เหลือเรียงตาม gamesPlayed น้อยไปมาก
+  // เรียง players: พักอยู่ไปท้ายสุด, คนกำลังเล่นอยู่รองลงมา, ที่เหลือเรียงตาม gamesPlayed น้อยไปมาก
   const sortedPlayers = players
     ? [...players].sort((a, b) => {
         const aInCourt = isPlayerInCourt(a.id);
         const bInCourt = isPlayerInCourt(b.id);
+        const aResting = isPlayerResting(a.id);
+        const bResting = isPlayerResting(b.id);
 
-        // ถ้าคนหนึ่งกำลังเล่น คนหนึ่งไม่เล่น ให้คนที่เล่นอยู่ไปท้าย
-        if (aInCourt && !bInCourt) return 1;
-        if (!aInCourt && bInCourt) return -1;
+        const rank = (inCourt: boolean, resting: boolean) =>
+          resting ? 2 : inCourt ? 1 : 0;
 
-        // ถ้าทั้งคู่สถานะเดียวกัน เรียงตาม gamesPlayed น้อยไปมาก
+        const aRank = rank(aInCourt, aResting);
+        const bRank = rank(bInCourt, bResting);
+
+        if (aRank !== bRank) return aRank - bRank;
+
         return a.gamesPlayed - b.gamesPlayed;
       })
     : [];
