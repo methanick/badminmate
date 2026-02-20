@@ -61,7 +61,7 @@ export function PlayerSlot({
       style={{
         backgroundColor: player ? backgroundColor : undefined,
       }}
-      className={`flex-1 border-2 border-dashed rounded-lg p-1.5 min-h-[50px] flex items-center justify-center transition-colors ${
+      className={`flex-1 border-2 border-dashed rounded-lg p-1 min-h-[36px] flex items-center justify-center transition-colors ${
         isOver ? "bg-blue-100 border-blue-400" : "border-gray-300"
       } ${!player ? "bg-white" : ""} ${disabled ? "opacity-60" : ""}`}
     >
@@ -198,7 +198,7 @@ function DraggablePlayerInSlot({
     <div
       ref={setNodeRef}
       style={style}
-      className="text-center w-full relative group"
+      className="text-center w-full relative group min-w-16"
     >
       {!disabled && (
         <Button
@@ -220,9 +220,6 @@ function DraggablePlayerInSlot({
       >
         <p className="text-xs font-medium text-white leading-tight">
           {player.name}
-        </p>
-        <p className="text-xs text-white opacity-90 leading-tight">
-          {player.level}
         </p>
       </div>
     </div>

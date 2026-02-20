@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,12 +11,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Level } from "@/constants/level";
-import { Pencil } from "lucide-react";
-import { useState } from "react";
+import { Level, LevelConfig } from "@/constants/level";
+import { Member } from "@/model/member.model";
+import { Pencil, UserPlus } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 interface AddPlayerFormProps {
-  onAddPlayer: (name: string, level: Level) => void;
+  members: Member[];
+  onAddPlayer: (name: string, level: Level, memberId?: number) => void;
   onClearAllPlayers: () => void;
   onResetGamesPlayed: () => void;
   isEditMode?: boolean;
@@ -25,72 +27,96 @@ interface AddPlayerFormProps {
 }
 
 export function AddPlayerForm({
+  members = [],
   onAddPlayer,
   onClearAllPlayers,
   onResetGamesPlayed,
   isEditMode = false,
   onEditModeChange,
 }: AddPlayerFormProps) {
-  const [name, setName] = useState("");
-  const [level, setLevel] = useState<Level>(Level.Beginner);
+  const [selectedMemberId, setSelectedMemberId] = useState<string>("");
+
+  // Debug: log members when it changes
+  useEffect(() => {
+    console.log("AddPlayerForm - members:", members);
+  }, [members]);
 
   const handleAddPlayer = () => {
-    if (name.trim()) {
-      onAddPlayer(name.trim(), level);
-      setName("");
-      setLevel(Level.Beginner);
-    }
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleAddPlayer();
+    if (selectedMemberId) {
+      const member = members.find((m) => m.id === Number(selectedMemberId));
+      if (member) {
+        onAddPlayer(member.name, member.level, member.id);
+        setSelectedMemberId("");
+      }
     }
   };
 
   return (
     <div className="bg-white rounded-xl p-2 shadow mt-4">
-      <div className="flex gap-1 text-xs">
-        <Field>
-          <FieldLabel htmlFor="input-field-name" className="text-xs">
+      {members.length === 0 && (
+        <div className="mb-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+          ยังไม่มีสมาชิกในระบบ{" "}
+          <Link
+            href="/members"
+            className="underline font-medium hover:text-yellow-900"
+          >
+            คลิกที่นี่เพื่อเพิ่มสมาชิก
+          </Link>
+        </div>
+      )}
+      <div className="flex gap-1 text-xs items-end">
+        <Field className="flex-1">
+          <FieldLabel htmlFor="select-member" className="text-xs">
             เพิ่มผู้เล่น
           </FieldLabel>
-          <Input
-            id="input-field-name"
-            type="text"
-            placeholder="ชื่อผู้เล่น"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyPress={handleKeyPress}
-            className="h-8 text-xs"
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="select-level" className="text-xs">
-            ระดับ
-          </FieldLabel>
-          <Select
-            value={level}
-            onValueChange={(value) => setLevel(value as Level)}
-          >
-            <SelectTrigger className="w-32 h-8 text-xs" id="select-level">
-              <SelectValue placeholder="Select level" />
+          <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+            <SelectTrigger className="h-8 text-xs" id="select-member">
+              <SelectValue placeholder="เลือกสมาชิก" />
             </SelectTrigger>
             <SelectContent>
-              <SelectGroup>
-                <SelectLabel className="text-xs">ระดับผู้เล่น</SelectLabel>
-                {Object.values(Level).map((lv) => (
-                  <SelectItem key={lv} value={lv} className="text-xs">
-                    {lv}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
+              {members.length === 0 ? (
+                <div className="p-2 text-xs text-gray-500 text-center">
+                  ไม่มีสมาชิก
+                </div>
+              ) : (
+                Object.values(Level).map((lv) => {
+                  const levelMembers = members.filter((m) => m.level === lv);
+                  if (levelMembers.length === 0) return null;
+
+                  return (
+                    <SelectGroup key={lv}>
+                      <SelectLabel className="text-xs flex items-center gap-2">
+                        <div
+                          className="w-2 h-2 rounded"
+                          style={{ backgroundColor: LevelConfig[lv].color }}
+                        />
+                        {LevelConfig[lv].label}
+                      </SelectLabel>
+                      {levelMembers.map((member) => (
+                        <SelectItem
+                          key={member.id}
+                          value={String(member.id)}
+                          className="text-xs"
+                        >
+                          {member.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  );
+                })
+              )}
             </SelectContent>
           </Select>
         </Field>
-        <div className="mt-5">
-          <Button onClick={handleAddPlayer} size="sm" className="h-8 text-xs">
-            Add
+        <div>
+          <Button
+            onClick={handleAddPlayer}
+            disabled={!selectedMemberId}
+            size="sm"
+            className="h-8 text-xs"
+          >
+            <UserPlus className="h-3 w-3 mr-1" />
+            เพิ่ม
           </Button>
         </div>
       </div>

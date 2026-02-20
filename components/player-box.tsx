@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +31,7 @@ interface PlayerBoxProps {
   restingPlayers?: Player[];
   onEditPlayer: (playerId: number, name: string, level: Level) => void;
   isEditMode?: boolean;
+  playersInQueue?: Set<number>;
 }
 
 export function PlayerBox({
@@ -41,6 +41,7 @@ export function PlayerBox({
   restingPlayers,
   onEditPlayer,
   isEditMode = false,
+  playersInQueue,
 }: PlayerBoxProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
@@ -61,6 +62,12 @@ export function PlayerBox({
   const isPlayerResting = (playerId: number): boolean => {
     if (!restingPlayers) return false;
     return restingPlayers.some((p) => p.id === playerId);
+  };
+
+  // เช็คว่า player อยู่ในคิวหรือไม่
+  const isPlayerInQueue = (playerId: number): boolean => {
+    if (!playersInQueue) return false;
+    return playersInQueue.has(playerId);
   };
 
   // เรียง players: พักอยู่ไปท้ายสุด, คนกำลังเล่นอยู่รองลงมา, ที่เหลือเรียงตาม gamesPlayed น้อยไปมาก
@@ -94,33 +101,27 @@ export function PlayerBox({
 
   return (
     <>
-      <Card className="w-full max-w-full p-1 gap-0">
-        <CardHeader className="p-2 pb-0">
-          <CardTitle className="text-sm">
-            {level && LevelConfig[level].label}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-2">
-          <div className="flex flex-wrap gap-1">
-            {sortedPlayers.length > 0 ? (
-              sortedPlayers.map((player) => (
-                <DraggablePlayer
-                  key={player.id}
-                  player={player}
-                  isDisabled={
-                    isPlayerInCourt(player.id) || isPlayerResting(player.id)
-                  }
-                  isResting={isPlayerResting(player.id)}
-                  onEdit={() => openEdit(player)}
-                  isEditMode={isEditMode}
-                />
-              ))
-            ) : (
-              <p className="text-xs text-gray-500">ไม่มีผู้เล่น</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-wrap gap-1">
+        {sortedPlayers.length > 0 ? (
+          sortedPlayers.map((player) => (
+            <DraggablePlayer
+              key={player.id}
+              player={player}
+              isDisabled={
+                isPlayerInCourt(player.id) ||
+                isPlayerResting(player.id) ||
+                isPlayerInQueue(player.id)
+              }
+              isResting={isPlayerResting(player.id)}
+              isInQueue={isPlayerInQueue(player.id)}
+              onEdit={() => openEdit(player)}
+              isEditMode={isEditMode}
+            />
+          ))
+        ) : (
+          <p className="text-xs text-gray-500">ไม่มีผู้เล่น</p>
+        )}
+      </div>
 
       <Dialog
         open={editOpen}
@@ -200,12 +201,14 @@ function DraggablePlayer({
   player,
   isDisabled,
   isResting,
+  isInQueue,
   onEdit,
   isEditMode = false,
 }: {
   player: Player;
   isDisabled: boolean;
   isResting?: boolean;
+  isInQueue?: boolean;
   onEdit: () => void;
   isEditMode?: boolean;
 }) {
@@ -220,7 +223,9 @@ function DraggablePlayer({
     backgroundColor: isDisabled
       ? isResting
         ? "#fbbf24"
-        : "#9ca3af"
+        : isInQueue
+          ? "#9ca3af"
+          : "#9ca3af"
       : LevelConfig[player.level].color,
     transform: transform
       ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
@@ -236,7 +241,7 @@ function DraggablePlayer({
       style={style}
       {...(isDisabled ? {} : listeners)}
       {...(isDisabled ? {} : attributes)}
-      className="rounded-sm p-1.5 text-white text-xs w-16 text-center relative"
+      className="rounded-sm p-1.5 text-white text-xs w-fit min-w-16 text-center relative"
       title={isResting ? `${player.name} (กำลังพัก)` : undefined}
     >
       {isEditMode && (

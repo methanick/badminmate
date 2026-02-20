@@ -9,6 +9,7 @@ interface AutoMatchParams {
   gameHistory: GameHistory[];
   restingPlayers: Player[];
   strictMode?: boolean; // ไม่ให้เจอคู่เดิมเลย
+  balancedLevelMode?: boolean; // level ต่างกันไม่เกิน 2
 }
 
 const levelWeight: Record<Level, number> = {
@@ -25,6 +26,7 @@ export function autoMatchPlayers({
   gameHistory,
   restingPlayers,
   strictMode = false,
+  balancedLevelMode = false,
 }: AutoMatchParams): {
   team1: [Player, Player];
   team2: [Player, Player];
@@ -90,6 +92,23 @@ export function autoMatchPlayers({
     const selectedPlayers = candidatePool
       .sort(() => Math.random() - 0.5)
       .slice(0, 4);
+
+    // ตรวจสอบว่า level ของทั้ง 4 คนต่างกันไม่เกิน 2 level
+    const allPlayersLevelRange =
+      Math.max(...selectedPlayers.map((p) => levelWeight[p.level])) -
+      Math.min(...selectedPlayers.map((p) => levelWeight[p.level]));
+
+    // ถ้าเปิด balancedLevelMode และ level ต่างกันเกิน 2 level ให้ลองเลือก 4 คนใหม่
+    if (balancedLevelMode && allPlayersLevelRange > 2) {
+      console.log("Level range too wide, selecting new players...");
+      continue;
+    }
+
+    // ถ้า level ต่างกันเกิน 2 level ให้ลองเลือก 4 คนใหม่
+    if (allPlayersLevelRange > 2) {
+      console.log("Level range too wide, selecting new players...");
+      continue;
+    }
 
     // หาวิธีแบ่งที่ดีที่สุด
     const allDivisions: Array<{

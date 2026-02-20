@@ -5,6 +5,7 @@ export type Player = {
   name: string;
   level: Level;
   gamesPlayed: number;
+  memberId?: number; // reference to Member (optional for backward compatibility)
 };
 
 // Deprecated: ใช้ LevelConfig จาก constants/level.ts แทน
