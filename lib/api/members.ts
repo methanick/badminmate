@@ -1,7 +1,6 @@
 import { Level } from "@/constants/level"; // Removed Gender import
 import { supabase } from "@/lib/supabase/client";
-
-export type Gender = "male" | "female" | "other"; // Define Gender type
+import { Gender } from "@/model/member.model"; // Added Gender
 
 export interface MemberData {
   name: string;
