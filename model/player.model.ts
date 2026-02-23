@@ -1,11 +1,11 @@
 import { Level } from "@/constants/level";
 
 export type Player = {
-  id: number;
+  id: string; // Changed to string (UUID)
   name: string;
   level: Level;
   gamesPlayed: number;
-  memberId?: number; // reference to Member (optional for backward compatibility)
+  memberId?: string; // reference to Member (optional for backward compatibility)
 };
 
 // Deprecated: ใช้ LevelConfig จาก constants/level.ts แทน

@@ -3,30 +3,91 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { LevelConfig } from "@/constants/level";
+import { supabase } from "@/lib/supabase/client";
 import { GameHistory } from "@/model/game-history.model";
 import { Player } from "@/model/player.model";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface HistoryPanelProps {
+  sessionId?: string;
   showBackButton?: boolean;
   showTitle?: boolean;
   className?: string;
 }
 
 export function HistoryPanel({
+  sessionId,
   showBackButton = false,
   showTitle = true,
   className,
 }: HistoryPanelProps) {
-  const [gameHistory, setGameHistory] = useState<GameHistory[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("badminton-game-history");
-      return saved ? JSON.parse(saved) : [];
+  const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load game history from Supabase when sessionId changes
+  useEffect(() => {
+    if (sessionId) {
+      loadGameHistory(sessionId);
+    } else {
+      setGameHistory([]);
     }
-    return [];
-  });
+  }, [sessionId]);
+
+  const loadGameHistory = async (sessionId: string) => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("game_history")
+        .select("*")
+        .eq("session_id", sessionId)
+        .order("timestamp", { ascending: false });
+
+      if (error) throw error;
+
+      // Transform data to GameHistory format
+      const history: GameHistory[] = data.map((record) => ({
+        id: record.id,
+        courtName: record.court_name,
+        team1: [
+          {
+            id: crypto.randomUUID(),
+            name: record.team1_player1_name || "",
+            level: record.team1_player1_level as keyof typeof LevelConfig,
+            gamesPlayed: 0,
+          },
+          {
+            id: crypto.randomUUID(),
+            name: record.team1_player2_name || "",
+            level: record.team1_player2_level as keyof typeof LevelConfig,
+            gamesPlayed: 0,
+          },
+        ],
+        team2: [
+          {
+            id: crypto.randomUUID(),
+            name: record.team2_player1_name || "",
+            level: record.team2_player1_level as keyof typeof LevelConfig,
+            gamesPlayed: 0,
+          },
+          {
+            id: crypto.randomUUID(),
+            name: record.team2_player2_name || "",
+            level: record.team2_player2_level as keyof typeof LevelConfig,
+            gamesPlayed: 0,
+          },
+        ],
+        timestamp: new Date(record.timestamp).getTime(),
+      }));
+
+      setGameHistory(history);
+    } catch (error) {
+      console.error("Failed to load game history:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -63,12 +124,31 @@ export function HistoryPanel({
 
   const { pairings, opponents } = getPlayerPairings();
 
-  const clearHistory = () => {
-    if (confirm("ต้องการลบประวัติทั้งหมดใช่หรือไม่?")) {
-      localStorage.removeItem("badminton-game-history");
-      setGameHistory([]);
+  const clearHistory = async () => {
+    if (!sessionId) return;
+    if (confirm("ต้องการลบประวัติทั้งหมดของแมทช์นี้ใช่หรือไม่?")) {
+      try {
+        const { error } = await supabase
+          .from("game_history")
+          .delete()
+          .eq("session_id", sessionId);
+
+        if (error) throw error;
+        setGameHistory([]);
+      } catch (error) {
+        console.error("Failed to clear history:", error);
+        alert("ไม่สามารถลบประวัติได้");
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="text-center py-12 text-gray-500">
+        กำลังโหลดประวัติการแข่งขัน...
+      </div>
+    );
+  }
 
   return (
     <div className={className}>
@@ -176,7 +256,7 @@ export function HistoryPanel({
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10)
                 .map(([pair, count]) => {
-                  const [id1, id2] = pair.split("-").map(Number);
+                  const [id1, id2] = pair.split("-").map(String);
                   const game = gameHistory.find(
                     (g) =>
                       (g.team1[0].id === id1 && g.team1[1].id === id2) ||
@@ -226,7 +306,7 @@ export function HistoryPanel({
                 .sort((a, b) => b[1] - a[1])
                 .slice(0, 10)
                 .map(([pair, count]) => {
-                  const [id1, id2] = pair.split("-").map(Number);
+                  const [id1, id2] = pair.split("-").map(String);
                   const game = gameHistory.find(
                     (g) =>
                       (g.team1.some((p) => p.id === id1) &&

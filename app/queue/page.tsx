@@ -1,6 +1,7 @@
 "use client";
 
 import { QueueManager } from "@/components/queue-manager";
+import { SessionStarter } from "@/components/session-starter";
 import { useAppContext } from "@/contexts/app-context";
 import { useGameHandlers } from "@/hooks/use-game-handlers";
 
@@ -18,6 +19,7 @@ export default function QueuePage() {
     setQueuedMatches,
     members,
     isEditMode,
+    currentSessionId,
   } = useAppContext();
 
   const {
@@ -29,6 +31,7 @@ export default function QueuePage() {
     addPlayerToQueue,
     autoMatchQueue,
     startQueueMatch,
+    stopQueueMatch,
     selectedCourts,
     handleCourtChange,
   } = useGameHandlers({
@@ -42,31 +45,41 @@ export default function QueuePage() {
     setRestingPlayers,
     queuedMatches,
     setQueuedMatches,
+    currentSessionId,
   });
 
   return (
     <div className="p-6">
-      <QueueManager
-        players={players}
-        courts={courts}
-        restingPlayers={restingPlayers}
-        queuedMatches={queuedMatches}
-        members={members}
-        isEditMode={isEditMode}
-        onEditPlayer={updatePlayerDetails}
-        onAddPlayer={addPlayer}
-        onRemoveFromRest={(playerId: number) => {
-          setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
-        }}
-        onCreateQueue={createEmptyQueue}
-        onDeleteQueue={deleteQueuedMatch}
-        onRemovePlayerFromQueue={removePlayerFromQueue}
-        onAddPlayerToQueue={addPlayerToQueue}
-        onAutoMatchQueue={autoMatchQueue}
-        onStartQueue={startQueueMatch}
-        selectedCourts={selectedCourts}
-        onCourtChange={handleCourtChange}
-      />
+      <SessionStarter />
+
+      {currentSessionId ? (
+        <QueueManager
+          players={players}
+          courts={courts}
+          restingPlayers={restingPlayers}
+          queuedMatches={queuedMatches}
+          members={members}
+          isEditMode={isEditMode}
+          onEditPlayer={updatePlayerDetails}
+          onAddPlayer={addPlayer}
+          onRemoveFromRest={(playerId: string) => {
+            setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
+          }}
+          onCreateQueue={createEmptyQueue}
+          onDeleteQueue={deleteQueuedMatch}
+          onRemovePlayerFromQueue={removePlayerFromQueue}
+          onAddPlayerToQueue={addPlayerToQueue}
+          onAutoMatchQueue={autoMatchQueue}
+          onStartQueue={startQueueMatch}
+          onStopQueue={stopQueueMatch}
+          selectedCourts={selectedCourts}
+          onCourtChange={handleCourtChange}
+        />
+      ) : (
+        <div className="text-center py-12 text-gray-500">
+          กรุณาเริ่มจัดก๊วนก่อนใช้งาน
+        </div>
+      )}
     </div>
   );
 }

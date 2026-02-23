@@ -32,7 +32,7 @@ export function autoMatchPlayers({
   team2: [Player, Player];
 } | null {
   // หา players ที่ว่าง (ไม่อยู่ใน court ไหน และไม่ได้พัก)
-  const playersInCourts = new Set<number>();
+  const playersInCourts = new Set<string>();
   courts.forEach((court) => {
     court.team1.forEach((p) => p && playersInCourts.add(p.id));
     court.team2.forEach((p) => p && playersInCourts.add(p.id));

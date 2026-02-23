@@ -1,16 +1,28 @@
 "use client";
 
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { AuthUser, getCurrentUser, onAuthStateChange } from "@/lib/api/auth";
 import { Court } from "@/model/court.model";
 import { GameHistory } from "@/model/game-history.model";
 import { Member } from "@/model/member.model";
 import { Player } from "@/model/player.model";
 import { QueuedMatch } from "@/model/queued-match.model";
-import { createContext, ReactNode, useContext } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface AppContextType {
-  currentUser: string | null;
-  setCurrentUser: (user: string | null) => void;
+  currentUser: AuthUser | null;
+  setCurrentUser: (user: AuthUser | null) => void;
+  isAuthLoading: boolean;
+  currentSessionId: string | null;
+  setCurrentSessionId: (sessionId: string | null) => void;
+  currentSessionName: string | null;
+  setCurrentSessionName: (name: string | null) => void;
   players: Player[];
   setPlayers: (players: Player[] | ((prev: Player[]) => Player[])) => void;
   courts: Court[];
@@ -41,10 +53,34 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useLocalStorage<string | null>(
-    "badminton-current-user",
-    null,
-  );
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  // Load current user on mount
+  useEffect(() => {
+    getCurrentUser()
+      .then((user) => setCurrentUser(user))
+      .catch((error) => console.error("Error loading user:", error))
+      .finally(() => setIsAuthLoading(false));
+
+    // Listen to auth changes
+    const subscription = onAuthStateChange((user) => {
+      setCurrentUser(user);
+      setIsAuthLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const [currentSessionId, setCurrentSessionId] = useLocalStorage<
+    string | null
+  >("badminton-current-session-id", null);
+
+  const [currentSessionName, setCurrentSessionName] = useLocalStorage<
+    string | null
+  >("badminton-current-session-name", null);
 
   const [players, setPlayers] = useLocalStorage<Player[]>(
     "badminton-players",
@@ -98,6 +134,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       value={{
         currentUser,
         setCurrentUser,
+        isAuthLoading,
+        currentSessionId,
+        setCurrentSessionId,
+        currentSessionName,
+        setCurrentSessionName,
         players,
         setPlayers,
         courts,

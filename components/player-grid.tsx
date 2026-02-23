@@ -24,11 +24,11 @@ interface PlayerGridProps {
   courts: Court[];
   restingPlayers: Player[];
   members: Member[];
-  onRemoveFromRest: (playerId: number) => void;
-  onEditPlayer: (playerId: number, name: string, level: Level) => void;
-  onAddPlayer: (name: string, level: Level, memberId?: number) => void;
+  onRemoveFromRest: (playerId: string) => void;
+  onEditPlayer: (playerId: string, name: string, level: Level) => void;
+  onAddPlayer: (name: string, level: Level, memberId?: string) => void;
   isEditMode?: boolean;
-  playersInQueue?: Set<number>;
+  playersInQueue?: Set<string>;
 }
 
 export function PlayerGrid({

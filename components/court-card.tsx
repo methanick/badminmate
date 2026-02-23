@@ -11,22 +11,22 @@ import { PlayerSlot } from "./player-slot";
 interface CourtCardProps {
   court: Court;
   availablePlayers: Player[];
-  onDelete: (id: number) => void;
-  onUpdateName: (id: number, name: string) => void;
+  onDelete: (id: string) => void;
+  onUpdateName: (id: string, name: string) => void;
   onRemovePlayer: (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
   ) => void;
   onAddPlayerToSlot: (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
-    playerId: number,
+    playerId: string,
   ) => void;
-  onStartGame: (courtId: number) => void;
-  onEndGame: (courtId: number) => void;
-  onAutoMatch: (courtId: number) => void;
+  onStartGame: (courtId: string) => void;
+  onEndGame: (courtId: string) => void;
+  onAutoMatch: (courtId: string) => void;
 }
 
 export function CourtCard({

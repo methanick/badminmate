@@ -13,7 +13,7 @@ export const GenderLabel: Record<Gender, string> = {
 };
 
 export type Member = {
-  id: number;
+  id: string;
   name: string;
   level: Level;
   gender: Gender;

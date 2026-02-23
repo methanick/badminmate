@@ -18,26 +18,27 @@ interface QueueManagerProps {
   queuedMatches: QueuedMatch[];
   members: Member[];
   isEditMode: boolean;
-  onEditPlayer: (id: number, name: string, level: Level) => void;
-  onAddPlayer: (name: string, level: Level, memberId?: number) => void;
-  onRemoveFromRest: (playerId: number) => void;
+  onEditPlayer: (id: string, name: string, level: Level) => void;
+  onAddPlayer: (name: string, level: Level, memberId?: string) => void;
+  onRemoveFromRest: (playerId: string) => void;
   onCreateQueue: () => void;
-  onDeleteQueue: (queueId: number) => void;
+  onDeleteQueue: (queueId: string) => void;
   onRemovePlayerFromQueue: (
-    queueId: number,
+    queueId: string,
     team: "team1" | "team2",
     slotIndex: number,
   ) => void;
   onAddPlayerToQueue: (
-    queueId: number,
+    queueId: string,
     team: "team1" | "team2",
     slotIndex: number,
-    playerId: number,
+    playerId: string,
   ) => void;
-  onAutoMatchQueue: (queueId: number) => void;
-  onStartQueue: (queueId: number, courtId: number) => void;
-  selectedCourts: Record<number, number>;
-  onCourtChange: (queueId: number, courtId: number) => void;
+  onAutoMatchQueue: (queueId: string) => void;
+  onStartQueue: (queueId: string, courtId: string) => void;
+  onStopQueue: (queueId: string) => void;
+  selectedCourts: Record<string, string>;
+  onCourtChange: (queueId: string, courtId: string) => void;
 }
 
 export function QueueManager({
@@ -56,12 +57,13 @@ export function QueueManager({
   onAddPlayerToQueue,
   onAutoMatchQueue,
   onStartQueue,
+  onStopQueue,
   selectedCourts,
   onCourtChange,
 }: QueueManagerProps) {
   // คำนวณผู้เล่นที่ว่าง (ไม่อยู่ในสนามและไม่อยู่ในคิว)
-  const playersInCourts = new Set<number>();
-  const playersInQueue = new Set<number>();
+  const playersInCourts = new Set<string>();
+  const playersInQueue = new Set<string>();
 
   courts.forEach((court) => {
     court.team1.forEach((p) => p && playersInCourts.add(p.id));
@@ -89,6 +91,10 @@ export function QueueManager({
       court.team2.filter((p) => !p).length;
     return emptySlots === 4 && !court.isPlaying;
   });
+
+  // แยกคิวที่กำลังเล่นและคิวที่รอ
+  const playingMatches = queuedMatches.filter((q) => q.isPlaying);
+  const queuedOnly = queuedMatches.filter((q) => !q.isPlaying);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full">
@@ -130,7 +136,36 @@ export function QueueManager({
           </CardContent>
         </Card>
 
-        {queuedMatches.length === 0 ? (
+        {/* กำลังเล่น */}
+        {playingMatches.length > 0 && (
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold text-gray-700">กำลังเล่น</h3>
+            <div className="space-y-2">
+              {playingMatches.map((queue, index) => (
+                <QueueItem
+                  key={queue.id}
+                  queue={queue}
+                  queueIndex={index}
+                  availablePlayers={availablePlayers}
+                  availableCourts={availableCourts}
+                  courts={courts}
+                  onRemovePlayer={onRemovePlayerFromQueue}
+                  onAddPlayerToSlot={onAddPlayerToQueue}
+                  onAutoMatch={onAutoMatchQueue}
+                  onStartQueue={onStartQueue}
+                  onStopQueue={onStopQueue}
+                  onDeleteQueue={onDeleteQueue}
+                  selectedCourt={selectedCourts[queue.id]}
+                  onCourtChange={onCourtChange}
+                  isPlaying={true}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* คิวรอ */}
+        {queuedOnly.length === 0 && playingMatches.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-gray-500">
               ไม่มีคิว
@@ -139,26 +174,32 @@ export function QueueManager({
               </p>
             </CardContent>
           </Card>
-        ) : (
-          <div className="space-y-3">
-            {queuedMatches.map((queue, index) => (
-              <QueueItem
-                key={queue.id}
-                queue={queue}
-                queueIndex={index}
-                availablePlayers={availablePlayers}
-                availableCourts={availableCourts}
-                onRemovePlayer={onRemovePlayerFromQueue}
-                onAddPlayerToSlot={onAddPlayerToQueue}
-                onAutoMatch={onAutoMatchQueue}
-                onStartQueue={onStartQueue}
-                onDeleteQueue={onDeleteQueue}
-                selectedCourt={selectedCourts[queue.id]}
-                onCourtChange={onCourtChange}
-              />
-            ))}
+        ) : queuedOnly.length > 0 ? (
+          <div className="space-y-2">
+            <h3 className="text-sm font-semibold text-gray-700">คิวรอ</h3>
+            <div className="space-y-2">
+              {queuedOnly.map((queue, index) => (
+                <QueueItem
+                  key={queue.id}
+                  queue={queue}
+                  queueIndex={playingMatches.length + index}
+                  availablePlayers={availablePlayers}
+                  availableCourts={availableCourts}
+                  courts={courts}
+                  onRemovePlayer={onRemovePlayerFromQueue}
+                  onAddPlayerToSlot={onAddPlayerToQueue}
+                  onAutoMatch={onAutoMatchQueue}
+                  onStartQueue={onStartQueue}
+                  onStopQueue={onStopQueue}
+                  onDeleteQueue={onDeleteQueue}
+                  selectedCourt={selectedCourts[queue.id]}
+                  onCourtChange={onCourtChange}
+                  isPlaying={false}
+                />
+              ))}
+            </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

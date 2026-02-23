@@ -29,9 +29,9 @@ interface PlayerBoxProps {
   players?: Player[];
   courts?: Court[];
   restingPlayers?: Player[];
-  onEditPlayer: (playerId: number, name: string, level: Level) => void;
+  onEditPlayer: (playerId: string, name: string, level: Level) => void;
   isEditMode?: boolean;
-  playersInQueue?: Set<number>;
+  playersInQueue?: Set<string>;
 }
 
 export function PlayerBox({
@@ -49,7 +49,7 @@ export function PlayerBox({
   const [editLevel, setEditLevel] = useState<Level>(Level.Beginner);
 
   // เช็คว่า player อยู่ใน court หรือไม่
-  const isPlayerInCourt = (playerId: number): boolean => {
+  const isPlayerInCourt = (playerId: string): boolean => {
     if (!courts) return false;
     return courts.some(
       (court) =>
@@ -59,13 +59,13 @@ export function PlayerBox({
   };
 
   // เช็คว่า player กำลังพักหรือไม่
-  const isPlayerResting = (playerId: number): boolean => {
+  const isPlayerResting = (playerId: string): boolean => {
     if (!restingPlayers) return false;
     return restingPlayers.some((p) => p.id === playerId);
   };
 
   // เช็คว่า player อยู่ในคิวหรือไม่
-  const isPlayerInQueue = (playerId: number): boolean => {
+  const isPlayerInQueue = (playerId: string): boolean => {
     if (!playersInQueue) return false;
     return playersInQueue.has(playerId);
   };

@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 
 interface RestZoneProps {
   restingPlayers: Player[];
-  onRemoveFromRest: (playerId: number) => void;
+  onRemoveFromRest: (playerId: string) => void;
 }
 
 export function RestZone({ restingPlayers, onRemoveFromRest }: RestZoneProps) {
@@ -48,7 +48,7 @@ function DraggableRestingPlayer({
   onRemove,
 }: {
   player: Player;
-  onRemove: (playerId: number) => void;
+  onRemove: (playerId: string) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({

@@ -24,7 +24,7 @@ interface PlayerSlotProps {
   player: Player | null;
   slotId: string;
   onRemove: () => void;
-  onAddPlayer: (playerId: number) => void;
+  onAddPlayer: (playerId: string) => void;
   availablePlayers: Player[];
   disabled?: boolean;
 }
@@ -150,8 +150,8 @@ export function PlayerSlot({
                   type="button"
                   disabled={!selectedPlayerId}
                   onClick={() => {
-                    const playerId = Number(selectedPlayerId);
-                    if (!Number.isNaN(playerId)) {
+                    const playerId = selectedPlayerId;
+                    if (playerId) {
                       onAddPlayer(playerId);
                     }
                     setOpen(false);

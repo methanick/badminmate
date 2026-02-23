@@ -20,18 +20,18 @@ import {
 import { Level, LevelConfig } from "@/constants/level";
 import { Gender, GenderLabel, Member } from "@/model/member.model";
 import { Pencil, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface MembersViewProps {
   members: Member[];
   onAddMember: (name: string, level: Level, gender: Gender) => void;
   onEditMember: (
-    id: number,
+    id: string,
     name: string,
     level: Level,
     gender: Gender,
   ) => void;
-  onDeleteMember: (id: number) => void;
+  onDeleteMember: (id: string) => void;
 }
 
 export function MembersView({
@@ -43,10 +43,19 @@ export function MembersView({
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [name, setName] = useState("");
   const [level, setLevel] = useState<Level>(Level.Beginner);
   const [gender, setGender] = useState<Gender>(Gender.Male);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(members.length / itemsPerPage);
+  const safePage = currentPage > totalPages && totalPages > 0 ? 1 : currentPage;
+  const startIndex = (safePage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentMembers = members.slice(startIndex, endIndex);
 
   const handleAdd = () => {
     if (!name.trim()) return;
@@ -55,6 +64,7 @@ export function MembersView({
     setLevel(Level.Beginner);
     setGender(Gender.Male);
     setShowAddModal(false);
+    setCurrentPage(1);
   };
 
   const handleEdit = () => {
@@ -97,86 +107,136 @@ export function MembersView({
               ยังไม่มีสมาชิก
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-sm text-gray-700 w-16">
-                      ลำดับ
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">
-                      ชื่อ
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">
-                      ระดับ
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">
-                      เพศ
-                    </th>
-                    <th className="text-right py-3 px-4 font-medium text-sm text-gray-700 w-24">
-                      จัดการ
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {members.map((member, index) => (
-                    <tr
-                      key={member.id}
-                      className="border-b hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-500">
-                          {index + 1}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm font-medium">
-                          {member.name}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-3 h-3 rounded"
-                            style={{
-                              backgroundColor: LevelConfig[member.level].color,
-                            }}
-                          />
-                          <span className="text-sm">
-                            {LevelConfig[member.level].label}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-600">
-                          {GenderLabel[member.gender]}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEdit(member)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onDeleteMember(member.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-4 font-medium text-sm text-gray-700 w-16">
+                        ลำดับ
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">
+                        ชื่อ
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">
+                        ระดับ
+                      </th>
+                      <th className="text-left py-3 px-4 font-medium text-sm text-gray-700">
+                        เพศ
+                      </th>
+                      <th className="text-right py-3 px-4 font-medium text-sm text-gray-700 w-24">
+                        จัดการ
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {currentMembers.map((member, index) => (
+                      <tr
+                        key={member.id}
+                        className="border-b hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-gray-500">
+                            {(safePage - 1) * itemsPerPage + index + 1}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm font-medium">
+                            {member.name}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded"
+                              style={{
+                                backgroundColor:
+                                  LevelConfig[member.level].color,
+                              }}
+                            />
+                            <span className="text-sm">
+                              {LevelConfig[member.level].label}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-gray-600">
+                            {GenderLabel[member.gender]}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex gap-1 justify-end">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEdit(member)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => onDeleteMember(member.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-4 pt-4 border-t">
+                  <div className="text-sm text-gray-600">
+                    แสดง {(safePage - 1) * itemsPerPage + 1}-{Math.min(safePage * itemsPerPage, members.length)}{" "}
+                    จาก {members.length} คน
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={safePage === 1}
+                    >
+                      ก่อนหน้า
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                        (page) => (
+                          <Button
+                            key={page}
+                            variant={
+                              safePage === page ? "default" : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className="w-10"
+                          >
+                            {page}
+                          </Button>
+                        ),
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={safePage === totalPages}
+                    >
+                      ถัดไป
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

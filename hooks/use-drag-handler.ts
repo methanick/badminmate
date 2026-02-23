@@ -11,13 +11,13 @@ interface UseDragHandlerParams {
     value: {
       player: Player;
       fromCourt: boolean;
-      courtId?: number;
+      courtId?: string;
       team?: "team1" | "team2";
       slotIndex?: number;
     } | null,
   ) => void;
   removePlayerFromSlot: (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
   ) => void;
@@ -43,7 +43,7 @@ export function useDragHandler({
     // Handle trash zone
     if (destId === "trash-zone") {
       let fromCourt = false;
-      let courtId: number | undefined;
+      let courtId: string | undefined;
       let team: "team1" | "team2" | undefined;
       let slotIndex: number | undefined;
 

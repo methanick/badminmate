@@ -1,4 +1,5 @@
 import { Level } from "@/constants/level";
+import { createGameHistory } from "@/lib/api/game-history";
 import { autoMatchPlayers } from "@/lib/auto-match";
 import { Court } from "@/model/court.model";
 import { GameHistory } from "@/model/game-history.model";
@@ -22,6 +23,7 @@ interface UseGameHandlersParams {
   setQueuedMatches: (
     value: QueuedMatch[] | ((prev: QueuedMatch[]) => QueuedMatch[]),
   ) => void;
+  currentSessionId: string | null;
 }
 
 export function useGameHandlers({
@@ -35,18 +37,19 @@ export function useGameHandlers({
   setRestingPlayers,
   queuedMatches,
   setQueuedMatches,
+  currentSessionId,
 }: UseGameHandlersParams) {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [playerToDelete, setPlayerToDelete] = useState<{
     player: Player;
     fromCourt: boolean;
-    courtId?: number;
+    courtId?: string;
     team?: "team1" | "team2";
     slotIndex?: number;
   } | null>(null);
 
   const [deleteCourtConfirmOpen, setDeleteCourtConfirmOpen] = useState(false);
-  const [courtToDelete, setCourtToDelete] = useState<number | null>(null);
+  const [courtToDelete, setCourtToDelete] = useState<string | null>(null);
 
   const [clearAllPlayersConfirmOpen, setClearAllPlayersConfirmOpen] =
     useState(false);
@@ -65,14 +68,14 @@ export function useGameHandlers({
   );
 
   const [selectedCourts, setSelectedCourts] = useLocalStorage<
-    Record<number, number>
+    Record<string, string>
   >("badminton-queue-selected-courts", {});
 
-  const addPlayer = (name: string, level: Level, memberId?: number) => {
+  const addPlayer = (name: string, level: Level, memberId?: string) => {
     setPlayers((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         name,
         level,
         gamesPlayed: 0,
@@ -85,7 +88,7 @@ export function useGameHandlers({
     setCourts((prev) => [
       ...prev,
       {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         name: `สนาม ${prev.length + 1}`,
         team1: [null, null],
         team2: [null, null],
@@ -94,7 +97,7 @@ export function useGameHandlers({
     ]);
   };
 
-  const deleteCourt = (courtId: number) => {
+  const deleteCourt = (courtId: string) => {
     setCourtToDelete(courtId);
     setDeleteCourtConfirmOpen(true);
   };
@@ -107,7 +110,7 @@ export function useGameHandlers({
     setCourtToDelete(null);
   };
 
-  const updateCourtName = (courtId: number, newName: string) => {
+  const updateCourtName = (courtId: string, newName: string) => {
     setCourts((prev) =>
       prev.map((court) =>
         court.id === courtId ? { ...court, name: newName } : court,
@@ -116,7 +119,7 @@ export function useGameHandlers({
   };
 
   const removePlayerFromSlot = (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
   ) => {
@@ -136,7 +139,7 @@ export function useGameHandlers({
   };
 
   const updatePlayerDetails = (
-    playerId: number,
+    playerId: string,
     name: string,
     level: Level,
   ) => {
@@ -179,10 +182,10 @@ export function useGameHandlers({
   };
 
   const addPlayerToSlot = (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
-    playerId: number,
+    playerId: string,
   ) => {
     const playerToAdd = players.find((p) => p.id === playerId);
     if (!playerToAdd) return;
@@ -212,7 +215,7 @@ export function useGameHandlers({
     setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
   };
 
-  const startGame = (courtId: number) => {
+  const startGame = async (courtId: string) => {
     const court = courts.find((c) => c.id === courtId);
     if (!court) return;
 
@@ -226,7 +229,7 @@ export function useGameHandlers({
     }
 
     const newHistory: GameHistory = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       timestamp: Date.now(),
       courtName: court.name,
       team1: [court.team1[0], court.team1[1]],
@@ -234,7 +237,27 @@ export function useGameHandlers({
     };
     setGameHistory((prev) => [newHistory, ...prev]);
 
-    const playerIds: number[] = [];
+    // Save to Supabase if session is active
+    if (currentSessionId) {
+      try {
+        await createGameHistory({
+          session_id: currentSessionId,
+          court_name: court.name,
+          team1_player1_name: court.team1[0]?.name,
+          team1_player1_level: court.team1[0]?.level,
+          team1_player2_name: court.team1[1]?.name,
+          team1_player2_level: court.team1[1]?.level,
+          team2_player1_name: court.team2[0]?.name,
+          team2_player1_level: court.team2[0]?.level,
+          team2_player2_name: court.team2[1]?.name,
+          team2_player2_level: court.team2[1]?.level,
+        });
+      } catch (error) {
+        console.error("Failed to save game history:", error);
+      }
+    }
+
+    const playerIds: string[] = [];
     court.team1.forEach((p) => p && playerIds.push(p.id));
     court.team2.forEach((p) => p && playerIds.push(p.id));
 
@@ -257,7 +280,7 @@ export function useGameHandlers({
     );
   };
 
-  const endGame = (courtId: number) => {
+  const endGame = (courtId: string) => {
     setCourts((prev) =>
       prev.map((court) =>
         court.id === courtId
@@ -272,7 +295,7 @@ export function useGameHandlers({
     );
   };
 
-  const handleAutoMatch = (courtId: number) => {
+  const handleAutoMatch = (courtId: string) => {
     const result = autoMatchPlayers({
       players,
       courts,
@@ -367,7 +390,7 @@ export function useGameHandlers({
     }
 
     const newMatch: QueuedMatch = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       team1: result.team1,
       team2: result.team2,
       createdAt: Date.now(),
@@ -378,7 +401,7 @@ export function useGameHandlers({
 
   const createEmptyQueue = () => {
     const newQueue: QueuedMatch = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       team1: [null, null],
       team2: [null, null],
       createdAt: Date.now(),
@@ -387,7 +410,7 @@ export function useGameHandlers({
     setQueuedMatches((prev) => [...prev, newQueue]);
   };
 
-  const deleteQueuedMatch = (matchId: number) => {
+  const deleteQueuedMatch = (matchId: string) => {
     setQueuedMatches((prev) => prev.filter((m) => m.id !== matchId));
     // ลบ selected court ด้วย
     setSelectedCourts((prev) => {
@@ -398,7 +421,7 @@ export function useGameHandlers({
   };
 
   const removePlayerFromQueue = (
-    queueId: number,
+    queueId: string,
     team: "team1" | "team2",
     slotIndex: number,
   ) => {
@@ -418,10 +441,10 @@ export function useGameHandlers({
   };
 
   const addPlayerToQueue = (
-    queueId: number,
+    queueId: string,
     team: "team1" | "team2",
     slotIndex: number,
-    playerId: number,
+    playerId: string,
   ) => {
     const playerToAdd = players.find((p) => p.id === playerId);
     if (!playerToAdd) return;
@@ -459,9 +482,9 @@ export function useGameHandlers({
     setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
   };
 
-  const autoMatchQueue = (queueId: number) => {
+  const autoMatchQueue = (queueId: string) => {
     // สร้าง temporary courts ที่รวมคิวอื่นเข้าไปด้วย เพื่อไม่ให้เอาคนจากคิวอื่นมาจับคู่
-    const playersInOtherQueues = new Set<number>();
+    const playersInOtherQueues = new Set<string>();
     queuedMatches.forEach((queue) => {
       if (queue.id !== queueId) {
         queue.team1.forEach((p) => p && playersInOtherQueues.add(p.id));
@@ -475,7 +498,7 @@ export function useGameHandlers({
       ...Array.from(playersInOtherQueues).map((playerId, index) => {
         const player = players.find((p) => p.id === playerId);
         return {
-          id: -1000 - index,
+          id: crypto.randomUUID(),
           name: `temp-${index}`,
           team1: [player, null] as [Player | null, Player | null],
           team2: [null, null] as [Player | null, Player | null],
@@ -510,7 +533,7 @@ export function useGameHandlers({
     );
   };
 
-  const startQueueMatch = (queueId: number, courtId: number) => {
+  const startQueueMatch = (queueId: string, courtId: string) => {
     const queue = queuedMatches.find((q) => q.id === queueId);
     if (!queue) return;
 
@@ -524,7 +547,20 @@ export function useGameHandlers({
       return;
     }
 
-    // ส่งผู้เล่นเข้าสนาม
+    const court = courts.find((c) => c.id === courtId);
+    if (!court) return;
+
+    // บันทึกประวัติการเล่น
+    const newHistory: GameHistory = {
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      courtName: court.name,
+      team1: [queue.team1[0], queue.team1[1]],
+      team2: [queue.team2[0], queue.team2[1]],
+    };
+    setGameHistory((prev) => [newHistory, ...prev]);
+
+    // ส่งผู้เล่นเข้าสนามและตั้งสถานะเป็นกำลังเล่น
     setCourts((prev) =>
       prev.map((court) => {
         if (court.id !== courtId) return court;
@@ -532,22 +568,77 @@ export function useGameHandlers({
           ...court,
           team1: queue.team1,
           team2: queue.team2,
+          isPlaying: true,
         };
       }),
     );
 
-    // ลบคิวและ selected court
+    // เพิ่มจำนวนเกมส์ของผู้เล่นที่ลงสนาม
+    const playerIds: string[] = [];
+    queue.team1.forEach((p) => p && playerIds.push(p.id));
+    queue.team2.forEach((p) => p && playerIds.push(p.id));
+
+    setPlayers((prev) =>
+      prev.map((player) => {
+        if (playerIds.includes(player.id)) {
+          return {
+            ...player,
+            gamesPlayed: player.gamesPlayed + 1,
+          };
+        }
+        return player;
+      }),
+    );
+
+    // อัพเดท queue เป็น playing
+    setQueuedMatches((prev) =>
+      prev.map((q) => {
+        if (q.id !== queueId) return q;
+        return {
+          ...q,
+          courtId,
+          isPlaying: true,
+        };
+      }),
+    );
+
+    // ลบ selected court
+    setSelectedCourts((prev) => {
+      const newSelected = { ...prev };
+      delete newSelected[queueId];
+      return newSelected;
+    });
+  };
+
+  const stopQueueMatch = (queueId: string) => {
+    const queue = queuedMatches.find((q) => q.id === queueId);
+    if (!queue || !queue.courtId) return;
+
+    // ล้างผู้เล่นออกจากสนามและตั้งสถานะเป็นไม่ได้เล่น
+    setCourts((prev) =>
+      prev.map((court) => {
+        if (court.id !== queue.courtId) return court;
+        return {
+          ...court,
+          team1: [null, null],
+          team2: [null, null],
+          isPlaying: false,
+        };
+      }),
+    );
+
+    // ลบคิวออกจากรายการ
     deleteQueuedMatch(queueId);
   };
 
-  const handleCourtChange = (queueId: number, courtId: number) => {
+  const handleCourtChange = (queueId: string, courtId: string) => {
     setSelectedCourts((prev) => ({
       ...prev,
       [queueId]: courtId,
     }));
   };
 
-  const assignMatchToCourt = (matchId: number, courtId: number) => {
+  const assignMatchToCourt = (matchId: string, courtId: string) => {
     const match = queuedMatches.find((m) => m.id === matchId);
     if (!match) return;
 
@@ -703,6 +794,7 @@ export function useGameHandlers({
     addPlayerToQueue,
     autoMatchQueue,
     startQueueMatch,
+    stopQueueMatch,
     handleCourtChange,
     selectedCourts,
     assignMatchToCourt,

@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 
 interface AddPlayerFormProps {
   members: Member[];
-  onAddPlayer: (name: string, level: Level, memberId?: number) => void;
+  onAddPlayer: (name: string, level: Level, memberId?: string) => void;
   onClearAllPlayers: () => void;
   onResetGamesPlayed: () => void;
   isEditMode?: boolean;
@@ -43,7 +43,7 @@ export function AddPlayerForm({
 
   const handleAddPlayer = () => {
     if (selectedMemberId) {
-      const member = members.find((m) => m.id === Number(selectedMemberId));
+      const member = members.find((m) => m.id === selectedMemberId);
       if (member) {
         onAddPlayer(member.name, member.level, member.id);
         setSelectedMemberId("");

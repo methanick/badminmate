@@ -13,22 +13,22 @@ interface CourtGridProps {
   courts: Court[];
   players: Player[];
   restingPlayers: Player[];
-  onDeleteCourt: (id: number) => void;
-  onUpdateCourtName: (id: number, name: string) => void;
+  onDeleteCourt: (id: string) => void;
+  onUpdateCourtName: (id: string, name: string) => void;
   onRemovePlayer: (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
   ) => void;
   onAddPlayerToSlot: (
-    courtId: number,
+    courtId: string,
     team: "team1" | "team2",
     slotIndex: number,
-    playerId: number,
+    playerId: string,
   ) => void;
-  onStartGame: (courtId: number) => void;
-  onEndGame: (courtId: number) => void;
-  onAutoMatch: (courtId: number) => void;
+  onStartGame: (courtId: string) => void;
+  onEndGame: (courtId: string) => void;
+  onAutoMatch: (courtId: string) => void;
   onAddCourt: () => void;
   onClearAllCourts: () => void;
   strictMode?: boolean;
@@ -54,7 +54,7 @@ export function CourtGrid({
   balancedLevelMode = false,
   onBalancedLevelModeChange,
 }: CourtGridProps) {
-  const playersInCourts = new Set<number>();
+  const playersInCourts = new Set<string>();
   courts.forEach((court) => {
     court.team1.forEach((p) => p && playersInCourts.add(p.id));
     court.team2.forEach((p) => p && playersInCourts.add(p.id));

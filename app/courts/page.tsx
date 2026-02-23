@@ -3,6 +3,7 @@
 import { ConfirmationDialogs } from "@/components/confirmation-dialogs";
 import { CourtGrid } from "@/components/court-grid";
 import { PlayerGrid } from "@/components/player-grid";
+import { SessionStarter } from "@/components/session-starter";
 import { useAppContext } from "@/contexts/app-context";
 import { useDisableCopy } from "@/hooks/use-disable-copy";
 import { useDragHandler } from "@/hooks/use-drag-handler";
@@ -35,6 +36,7 @@ export default function CourtsPage() {
     isEditMode,
     setIsEditMode,
     isCopyDisabled,
+    currentSessionId,
   } = useAppContext();
 
   useDisableCopy(isCopyDisabled);
@@ -78,6 +80,7 @@ export default function CourtsPage() {
     setRestingPlayers,
     queuedMatches,
     setQueuedMatches,
+    currentSessionId,
   });
 
   const sensors = useSensors(
@@ -106,44 +109,52 @@ export default function CourtsPage() {
   return (
     <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
       <div className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-1">
-            <PlayerGrid
-              players={players}
-              courts={courts}
-              restingPlayers={restingPlayers}
-              members={members}
-              onRemoveFromRest={(playerId) => {
-                setRestingPlayers((prev) =>
-                  prev.filter((p) => p.id !== playerId),
-                );
-              }}
-              onEditPlayer={updatePlayerDetails}
-              onAddPlayer={addPlayer}
-              isEditMode={isEditMode}
-            />
+        <SessionStarter />
+
+        {currentSessionId ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-1">
+              <PlayerGrid
+                players={players}
+                courts={courts}
+                restingPlayers={restingPlayers}
+                members={members}
+                onRemoveFromRest={(playerId) => {
+                  setRestingPlayers((prev) =>
+                    prev.filter((p) => p.id !== playerId),
+                  );
+                }}
+                onEditPlayer={updatePlayerDetails}
+                onAddPlayer={addPlayer}
+                isEditMode={isEditMode}
+              />
+            </div>
+            <div className="lg:col-span-2">
+              <CourtGrid
+                courts={courts}
+                players={players}
+                restingPlayers={restingPlayers}
+                onDeleteCourt={deleteCourt}
+                onUpdateCourtName={updateCourtName}
+                onRemovePlayer={removePlayerFromSlot}
+                onAddPlayerToSlot={addPlayerToSlot}
+                onStartGame={startGame}
+                onEndGame={endGame}
+                onAutoMatch={handleAutoMatch}
+                onAddCourt={addCourt}
+                onClearAllCourts={clearAllCourts}
+                strictMode={strictMode}
+                onStrictModeChange={setStrictMode}
+                balancedLevelMode={balancedLevelMode}
+                onBalancedLevelModeChange={setBalancedLevelMode}
+              />
+            </div>
           </div>
-          <div className="lg:col-span-2">
-            <CourtGrid
-              courts={courts}
-              players={players}
-              restingPlayers={restingPlayers}
-              onDeleteCourt={deleteCourt}
-              onUpdateCourtName={updateCourtName}
-              onRemovePlayer={removePlayerFromSlot}
-              onAddPlayerToSlot={addPlayerToSlot}
-              onStartGame={startGame}
-              onEndGame={endGame}
-              onAutoMatch={handleAutoMatch}
-              onAddCourt={addCourt}
-              onClearAllCourts={clearAllCourts}
-              strictMode={strictMode}
-              onStrictModeChange={setStrictMode}
-              balancedLevelMode={balancedLevelMode}
-              onBalancedLevelModeChange={setBalancedLevelMode}
-            />
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            กรุณาเริ่มจัดก๊วนก่อนใช้งาน
           </div>
-        </div>
+        )}
       </div>
 
       <ConfirmationDialogs

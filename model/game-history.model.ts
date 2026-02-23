@@ -1,7 +1,7 @@
 import { Player } from "./player.model";
 
 export interface GameHistory {
-  id: number;
+  id: string;
   timestamp: number;
   courtName: string;
   team1: [Player, Player];

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SidebarProps {
   currentUser: string;
@@ -48,7 +48,7 @@ export function Sidebar({ currentUser, onLogout }: SidebarProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   // Load collapsed state from localStorage after mount
-  useLayoutEffect(() => {
+  useEffect(() => {
     const saved = localStorage.getItem("badminton-sidebar-collapsed");
     setIsCollapsed(saved === "true");
     setIsMounted(true);
