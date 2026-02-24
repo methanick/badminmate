@@ -39,6 +39,31 @@ export async function createPlayer(playerData: PlayerData) {
 }
 
 /**
+ * สร้าง players หลายคนพร้อมกันใน session (bulk insert)
+ */
+export async function createPlayers(playersData: PlayerData[]) {
+  const { data, error } = await supabase
+    .from("players")
+    .insert(
+      playersData.map((p) => ({
+        session_id: p.session_id,
+        member_id: p.member_id,
+        name: p.name,
+        level: p.level,
+        games_played: p.games_played || 0,
+      })),
+    )
+    .select();
+
+  if (error) {
+    console.error("Error creating players:", error);
+    throw error;
+  }
+
+  return data as Player[];
+}
+
+/**
  * ดึง players ทั้งหมดใน session
  */
 export async function getPlayersBySession(sessionId: string) {

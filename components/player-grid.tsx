@@ -2,8 +2,6 @@
 
 import { AddPlayerForm } from "@/components/add-player-form";
 import { PlayerBox } from "@/components/player-box";
-import { RestZone } from "@/components/rest-zone";
-import { TrashZone } from "@/components/trash-zone";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
@@ -26,9 +24,14 @@ interface PlayerGridProps {
   members: Member[];
   onRemoveFromRest: (playerId: string) => void;
   onEditPlayer: (playerId: string, name: string, level: Level) => void;
-  onAddPlayer: (name: string, level: Level, memberId?: string) => void;
+  onAddPlayers: (
+    playersData: Array<{ name: string; level: Level; memberId?: string }>,
+  ) => Promise<void>;
   isEditMode?: boolean;
   playersInQueue?: Set<string>;
+  onEditModeChange?: (isEditMode: boolean) => void;
+  onResetGamesPlayed: () => void;
+  onClearAllPlayers: () => void;
 }
 
 export function PlayerGrid({
@@ -36,17 +39,18 @@ export function PlayerGrid({
   courts,
   restingPlayers,
   members,
-  onRemoveFromRest,
   onEditPlayer,
-  onAddPlayer,
+  onAddPlayers,
   isEditMode = false,
   playersInQueue,
+  onClearAllPlayers,
+  onResetGamesPlayed,
 }: PlayerGridProps) {
   const [showModal, setShowModal] = useState(false);
 
   return (
     <>
-      <Card className="mb-4">
+      <Card className="mb-4 gap-0">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">
@@ -62,6 +66,26 @@ export function PlayerGrid({
             </Button>
           </div>
         </CardHeader>
+        <CardContent className="py-0">
+          <div className="flex justify-start gap-1 flex-wrap">
+            <Button
+              onClick={onResetGamesPlayed}
+              variant="outline"
+              className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs h-8 py-1"
+              size="sm"
+            >
+              รีเซ็ตจำนวนเกม
+            </Button>
+            <Button
+              onClick={onClearAllPlayers}
+              variant="outline"
+              className="border-red-500 text-red-600 hover:bg-red-50 text-xs h-8 py-1"
+              size="sm"
+            >
+              ลบผู้เล่นทั้งหมด
+            </Button>
+          </div>
+        </CardContent>
       </Card>
 
       {/* Single Card for All Players */}
@@ -69,7 +93,9 @@ export function PlayerGrid({
         <CardContent className="p-3">
           <div className="space-y-4">
             {Object.values(Level).map((lv) => {
-              const levelPlayers = players.filter((p) => p.level === lv);
+              const levelPlayers = players
+                .filter((p) => p.level === lv)
+                .sort((a, b) => a.gamesPlayed - b.gamesPlayed);
 
               if (levelPlayers.length === 0) return null;
 
@@ -114,13 +140,13 @@ export function PlayerGrid({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-2">
+      {/* <div className="grid grid-cols-2 gap-2">
         <TrashZone />
         <RestZone
           restingPlayers={restingPlayers}
           onRemoveFromRest={onRemoveFromRest}
         />
-      </div>
+      </div> */}
 
       {/* Modal for adding player */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
@@ -130,8 +156,9 @@ export function PlayerGrid({
           </DialogHeader>
           <AddPlayerForm
             members={members}
-            onAddPlayer={(name, level, memberId) => {
-              onAddPlayer(name, level, memberId);
+            players={players}
+            onAddPlayers={async (playersData) => {
+              await onAddPlayers(playersData);
               setShowModal(false);
             }}
             onClearAllPlayers={() => {}}

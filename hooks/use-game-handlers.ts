@@ -1,5 +1,6 @@
 import { Level } from "@/constants/level";
 import { createGameHistory } from "@/lib/api/game-history";
+import { createPlayer, createPlayers } from "@/lib/api/players";
 import { autoMatchPlayers } from "@/lib/auto-match";
 import { Court } from "@/model/court.model";
 import { GameHistory } from "@/model/game-history.model";
@@ -71,17 +72,55 @@ export function useGameHandlers({
     Record<string, string>
   >("badminton-queue-selected-courts", {});
 
-  const addPlayer = (name: string, level: Level, memberId?: string) => {
-    setPlayers((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
+  const addPlayer = async (name: string, level: Level, memberId?: string) => {
+    if (!currentSessionId) {
+      alert("กรุณาเริ่มจัดก๊วนก่อน");
+      return;
+    }
+
+    try {
+      console.log("Adding player:", { name, level, memberId });
+      const newPlayer = await createPlayer({
+        session_id: currentSessionId,
+        member_id: memberId,
         name,
         level,
-        gamesPlayed: 0,
-        memberId,
-      },
-    ]);
+        games_played: 0,
+      });
+      setPlayers((prev) => [...prev, { ...newPlayer, gamesPlayed: 0 }]);
+    } catch (error) {
+      console.error("Error adding player:", error);
+      alert("ไม่สามารถเพิ่มผู้เล่นได้");
+    }
+  };
+
+  const addPlayers = async (
+    playersData: Array<{ name: string; level: Level; memberId?: string }>,
+  ) => {
+    if (!currentSessionId) {
+      alert("กรุณาเริ่มจัดก๊วนก่อน");
+      return;
+    }
+
+    try {
+      console.log("Adding players:", playersData);
+      const newPlayers = await createPlayers(
+        playersData.map((p) => ({
+          session_id: currentSessionId,
+          member_id: p.memberId,
+          name: p.name,
+          level: p.level,
+          games_played: 0,
+        })),
+      );
+      setPlayers((prev) => [
+        ...prev,
+        ...newPlayers.map((p) => ({ ...p, gamesPlayed: 0 })),
+      ]);
+    } catch (error) {
+      console.error("Error adding players:", error);
+      alert("ไม่สามารถเพิ่มผู้เล่นได้");
+    }
   };
 
   const addCourt = () => {
@@ -776,6 +815,7 @@ export function useGameHandlers({
 
   return {
     addPlayer,
+    addPlayers,
     addCourt,
     deleteCourt,
     confirmDeleteCourt,

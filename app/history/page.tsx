@@ -50,10 +50,8 @@ export default function HistoryPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">ประวัติการแข่งขัน</h1>
-
-        <Card className="border-gray-200">
-          <CardContent className="py-4">
+        <Card className="border-gray-200 py-0">
+          <CardContent className="py-4 px-4">
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex-shrink-0">
                 <Calendar className="w-5 h-5 text-white" />
@@ -77,18 +75,6 @@ export default function HistoryPage() {
                         <SelectItem key={session.id} value={session.id}>
                           <div className="flex flex-col">
                             <p className="font-medium">{session.name}</p>
-                            <p className="text-xs text-gray-500">
-                              {new Date(session.created_at).toLocaleDateString(
-                                "th-TH",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                },
-                              )}
-                            </p>
                           </div>
                         </SelectItem>
                       ))}

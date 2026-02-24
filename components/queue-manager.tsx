@@ -19,7 +19,9 @@ interface QueueManagerProps {
   members: Member[];
   isEditMode: boolean;
   onEditPlayer: (id: string, name: string, level: Level) => void;
-  onAddPlayer: (name: string, level: Level, memberId?: string) => void;
+  onAddPlayers: (
+    playersData: Array<{ name: string; level: Level; memberId?: string }>,
+  ) => Promise<void>;
   onRemoveFromRest: (playerId: string) => void;
   onCreateQueue: () => void;
   onDeleteQueue: (queueId: string) => void;
@@ -39,6 +41,8 @@ interface QueueManagerProps {
   onStopQueue: (queueId: string) => void;
   selectedCourts: Record<string, string>;
   onCourtChange: (queueId: string, courtId: string) => void;
+  onClearAllPlayers: () => void;
+  onResetGamesPlayed: () => void;
 }
 
 export function QueueManager({
@@ -49,7 +53,7 @@ export function QueueManager({
   members,
   isEditMode,
   onEditPlayer,
-  onAddPlayer,
+  onAddPlayers,
   onRemoveFromRest,
   onCreateQueue,
   onDeleteQueue,
@@ -60,6 +64,8 @@ export function QueueManager({
   onStopQueue,
   selectedCourts,
   onCourtChange,
+  onClearAllPlayers,
+  onResetGamesPlayed,
 }: QueueManagerProps) {
   // คำนวณผู้เล่นที่ว่าง (ไม่อยู่ในสนามและไม่อยู่ในคิว)
   const playersInCourts = new Set<string>();
@@ -107,9 +113,11 @@ export function QueueManager({
           members={members}
           onRemoveFromRest={onRemoveFromRest}
           onEditPlayer={onEditPlayer}
-          onAddPlayer={onAddPlayer}
+          onAddPlayers={onAddPlayers}
           isEditMode={isEditMode}
           playersInQueue={playersInQueue}
+          onClearAllPlayers={onClearAllPlayers}
+          onResetGamesPlayed={onResetGamesPlayed}
         />
       </div>
 

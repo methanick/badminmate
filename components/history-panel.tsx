@@ -8,7 +8,7 @@ import { GameHistory } from "@/model/game-history.model";
 import { Player } from "@/model/player.model";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface HistoryPanelProps {
   sessionId?: string;
@@ -26,23 +26,15 @@ export function HistoryPanel({
   const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load game history from Supabase when sessionId changes
-  useEffect(() => {
-    if (sessionId) {
-      loadGameHistory(sessionId);
-    } else {
-      setGameHistory([]);
-    }
-  }, [sessionId]);
-
-  const loadGameHistory = async (sessionId: string) => {
+  const loadGameHistory = useCallback(async (sessionId: string) => {
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from("game_history")
         .select("*")
         .eq("session_id", sessionId)
-        .order("timestamp", { ascending: false });
+        .order("timestamp", { ascending: false })
+        .limit(10);
 
       if (error) throw error;
 
@@ -87,7 +79,27 @@ export function HistoryPanel({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Load game history from Supabase when sessionId changes
+  useEffect(() => {
+    let isCancelled = false;
+
+    if (sessionId) {
+      loadGameHistory(sessionId).then(() => {
+        if (isCancelled) {
+          // Ignore result if component unmounted
+          return;
+        }
+      });
+    } else {
+      setGameHistory([]);
+    }
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [sessionId, loadGameHistory]);
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);

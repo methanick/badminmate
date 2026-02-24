@@ -21,8 +21,7 @@ import { Level, LevelConfig } from "@/constants/level";
 import { Court } from "@/model/court.model";
 import { Player } from "@/model/player.model";
 import { useDraggable } from "@dnd-kit/core";
-import { Pencil } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface PlayerBoxProps {
   level?: Level;
@@ -98,6 +97,10 @@ export function PlayerBox({
     setEditLevel(player.level);
     setEditOpen(true);
   };
+
+  useEffect(() => {
+    console.log("players changed:", sortedPlayers);
+  }, [sortedPlayers]);
 
   return (
     <>
@@ -244,23 +247,7 @@ function DraggablePlayer({
       className="rounded-sm p-1.5 text-white text-xs w-fit min-w-16 text-center relative"
       title={isResting ? `${player.name} (กำลังพัก)` : undefined}
     >
-      {isEditMode && (
-        <button
-          type="button"
-          className="absolute -top-1.5 -right-1.5 h-3.5 w-3.5 rounded-full bg-white/90 text-gray-700 flex items-center justify-center hover:bg-white"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          aria-label="แก้ไขผู้เล่น"
-        >
-          <Pencil className="h-2.5 w-2.5" />
-        </button>
-      )}
-      <span className="line-clamp-2 text-xs leading-tight">{`${player.gamesPlayed} | ${player.name}${isResting ? "💤" : ""}`}</span>
+      <span className="line-clamp-1 text-start text-xs leading-tight">{`${player.gamesPlayed} | ${player.name}`}</span>
     </div>
   );
 }

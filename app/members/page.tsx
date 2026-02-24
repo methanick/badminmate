@@ -14,30 +14,25 @@ import { Gender } from "@/model/member.model";
 import { useEffect, useState } from "react";
 
 export default function MembersPage() {
-  const { setMembers, currentUser } = useAppContext();
+  const { currentUser } = useAppContext();
   const [localMembers, setLocalMembers] = useState<Member[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // โหลดข้อมูลจาก Supabase
   useEffect(() => {
-    loadMembers();
-  }, []);
+    if (localMembers.length === 0) {
+      console.log("Loading members from Supabase...");
+      console.log("Current user:", localMembers.length, currentUser);
+      loadMembers();
+    }
+  }, [currentUser, localMembers.length]);
 
   const loadMembers = async () => {
     try {
       setIsLoading(true);
       const data = await getAllMembers();
+      console.log("Fetched members:", data);
       setLocalMembers(data);
-      // Sync กับ context
-      setMembers(
-        data.map((m) => ({
-          id: m.id,
-          name: m.name,
-          level: m.level as Level,
-          gender: m.gender as Gender,
-          createdAt: new Date(m.created_at).getTime(),
-        })),
-      );
     } catch (error) {
       console.error("Failed to load members:", error);
       alert("ไม่สามารถโหลดข้อมูลสมาชิกได้");
@@ -63,17 +58,6 @@ export default function MembersPage() {
         gender,
       });
       setLocalMembers((prev) => [newMember, ...prev]);
-      // Sync กับ context
-      setMembers((prev) => [
-        ...prev,
-        {
-          id: newMember.id,
-          name: newMember.name,
-          level: newMember.level as Level,
-          gender: newMember.gender as Gender,
-          createdAt: new Date(newMember.created_at).getTime(),
-        },
-      ]);
     } catch (error) {
       console.error("Failed to add member:", error);
       alert("ไม่สามารถเพิ่มสมาชิกได้");
@@ -91,19 +75,6 @@ export default function MembersPage() {
       setLocalMembers((prev) =>
         prev.map((m) => (m.id === id ? updatedMember : m)),
       );
-      // Sync กับ context
-      setMembers((prev) =>
-        prev.map((m) =>
-          m.id === id
-            ? {
-                ...m,
-                name: updatedMember.name,
-                level: updatedMember.level as Level,
-                gender: updatedMember.gender as Gender,
-              }
-            : m,
-        ),
-      );
     } catch (error) {
       console.error("Failed to update member:", error);
       alert("ไม่สามารถแก้ไขสมาชิกได้");
@@ -114,8 +85,6 @@ export default function MembersPage() {
     try {
       await deleteMember(id);
       setLocalMembers((prev) => prev.filter((m) => m.id !== id));
-      // Sync กับ context
-      setMembers((prev) => prev.filter((m) => m.id !== id));
     } catch (error) {
       console.error("Failed to delete member:", error);
       alert("ไม่สามารถลบสมาชิกได้");

@@ -42,7 +42,7 @@ export default function CourtsPage() {
   useDisableCopy(isCopyDisabled);
 
   const {
-    addPlayer,
+    addPlayers,
     addCourt,
     deleteCourt,
     confirmDeleteCourt,
@@ -125,8 +125,10 @@ export default function CourtsPage() {
                   );
                 }}
                 onEditPlayer={updatePlayerDetails}
-                onAddPlayer={addPlayer}
+                onAddPlayers={addPlayers}
                 isEditMode={isEditMode}
+                onClearAllPlayers={clearAllPlayers}
+                onResetGamesPlayed={resetAllGamesPlayed}
               />
             </div>
             <div className="lg:col-span-2">

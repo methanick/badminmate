@@ -94,20 +94,13 @@ export function LoginForm() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-purple-800">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
-      <Card className="relative w-full max-w-md mx-4 shadow-2xl border-0 backdrop-blur-sm bg-white/95">
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md mx-4 shadow-sm border border-gray-200 bg-white">
         <CardHeader className="space-y-2 pb-6 pt-8">
           <div className="flex justify-center mb-2">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="w-16 h-16 bg-white border-2 border-gray-900 rounded-2xl flex items-center justify-center shadow-sm">
               <svg
-                className="w-10 h-10 text-white"
+                className="w-10 h-10 text-gray-900"
                 fill="currentColor"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -142,7 +135,7 @@ export function LoginForm() {
               </svg>
             </div>
           </div>
-          <CardTitle className="text-center text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-center text-3xl font-bold text-gray-900">
             BadminMate
           </CardTitle>
           <p className="text-center text-sm text-gray-600">
@@ -161,7 +154,7 @@ export function LoginForm() {
               disabled={isLoading}
               className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-all ${
                 mode === "login"
-                  ? "bg-white text-blue-600 shadow-sm"
+                  ? "bg-gray-900 text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -176,7 +169,7 @@ export function LoginForm() {
               disabled={isLoading}
               className={`flex-1 py-2.5 text-sm font-medium rounded-md transition-all ${
                 mode === "signup"
-                  ? "bg-white text-blue-600 shadow-sm"
+                  ? "bg-gray-900 text-white shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -187,8 +180,8 @@ export function LoginForm() {
           <div className="space-y-4">
             {mode === "signup" && (
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  ชื่อผู้ใช้ <span className="text-gray-400">(ไม่จำเป็น)</span>
+                <label className="block text-sm font-medium text-gray-900">
+                  ชื่อผู้ใช้ <span className="text-gray-500">(ไม่จำเป็น)</span>
                 </label>
                 <Input
                   type="text"
@@ -196,14 +189,14 @@ export function LoginForm() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-12 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-gray-900"
                   disabled={isLoading}
                 />
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 อีเมล
               </label>
               <Input
@@ -212,13 +205,13 @@ export function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                className="h-12 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-gray-900"
                 disabled={isLoading}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 รหัสผ่าน
               </label>
               <Input
@@ -227,7 +220,7 @@ export function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="h-12 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                className="h-12 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-gray-900"
                 disabled={isLoading}
               />
               {mode === "signup" && (
@@ -256,7 +249,7 @@ export function LoginForm() {
 
             <Button
               onClick={mode === "login" ? handleLogin : handleSignUp}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+              className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white font-medium shadow-sm hover:shadow-md transition-all duration-200"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -351,15 +344,6 @@ export function LoginForm() {
           66% {
             transform: translate(-20px, 20px) scale(0.9);
           }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
         }
       `}</style>
     </div>

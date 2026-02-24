@@ -105,16 +105,16 @@ export function SessionStarter() {
   // If session already started, show session info bar
   if (currentSessionId && currentSessionName) {
     return (
-      <Card className="mb-6 border-blue-200 bg-blue-50">
-        <CardContent className="py-4">
+      <Card className="mb-4 p-4 border-gray-200 bg-white">
+        <CardContent className="py-1 px-2">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full flex-shrink-0">
+              <div className="flex items-center justify-center w-10 h-10 bg-gray-900 rounded-full flex-shrink-0">
                 <Play className="w-5 h-5 text-white fill-white" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-600">กำลังจัดก๊วน</p>
-                <p className="font-semibold text-blue-900 truncate">
+                <p className="font-semibold text-gray-900 truncate">
                   {currentSessionName}
                 </p>
               </div>
@@ -133,10 +133,10 @@ export function SessionStarter() {
           </div>
 
           {showForm && (
-            <div className="mt-4 pt-4 border-t border-blue-200">
+            <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="max-w-xl space-y-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
                     สร้างแมทช์ใหม่
                   </label>
                   <div className="flex gap-2">
@@ -150,13 +150,13 @@ export function SessionStarter() {
                           handleStartSession();
                         }
                       }}
-                      className="h-10"
+                      className="h-10 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-gray-900"
                       disabled={isLoading}
                     />
                     <Button
                       onClick={handleStartSession}
                       disabled={isLoading || !sessionName.trim()}
-                      className="bg-blue-600 hover:bg-blue-700"
+                      className="bg-gray-900 hover:bg-gray-800 text-white"
                     >
                       {isLoading ? "..." : "สร้าง"}
                     </Button>
@@ -179,15 +179,13 @@ export function SessionStarter() {
 
   // Session starter form
   return (
-    <Card className="mb-6 border-purple-200 bg-gradient-to-r from-blue-50 to-purple-50">
+    <Card className="mb-6 border-gray-200 bg-white">
       <CardContent className="py-6">
         <div className="text-center mb-4">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mb-3 shadow-lg">
-            <Calendar className="w-8 h-8 text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-white border-2 border-gray-900 rounded-2xl mb-3 shadow-sm">
+            <Calendar className="w-8 h-8 text-gray-900" />
           </div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            เริ่มจัดก๊วนใหม่
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900">เริ่มจัดก๊วนใหม่</h2>
           <p className="text-gray-600 mt-1">
             ตั้งชื่อแมทช์และเริ่มจัดการสนามของคุณ
           </p>
@@ -195,7 +193,7 @@ export function SessionStarter() {
 
         <div className="max-w-xl mx-auto space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               ชื่อแมทช์
             </label>
             <Input
@@ -208,7 +206,7 @@ export function SessionStarter() {
                   handleStartSession();
                 }
               }}
-              className="h-12 text-center text-lg"
+              className="h-12 text-center text-lg border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 focus:border-gray-900 focus:ring-gray-900"
               disabled={isLoading}
             />
           </div>
@@ -216,12 +214,12 @@ export function SessionStarter() {
           <Button
             onClick={handleStartSession}
             disabled={isLoading || !sessionName.trim()}
-            className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white font-medium shadow-sm hover:shadow-md transition-all duration-200"
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                กำลังสร้างแมทช์...
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <span>กำลังสร้างแมทช์...</span>
               </div>
             ) : (
               <>

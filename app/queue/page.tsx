@@ -23,7 +23,7 @@ export default function QueuePage() {
   } = useAppContext();
 
   const {
-    addPlayer,
+    addPlayers,
     updatePlayerDetails,
     createEmptyQueue,
     deleteQueuedMatch,
@@ -61,7 +61,7 @@ export default function QueuePage() {
           members={members}
           isEditMode={isEditMode}
           onEditPlayer={updatePlayerDetails}
-          onAddPlayer={addPlayer}
+          onAddPlayers={addPlayers}
           onRemoveFromRest={(playerId: string) => {
             setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
           }}
@@ -74,6 +74,17 @@ export default function QueuePage() {
           onStopQueue={stopQueueMatch}
           selectedCourts={selectedCourts}
           onCourtChange={handleCourtChange}
+          onResetGamesPlayed={() => {
+            setPlayers(
+              players.map((p) => ({
+                ...p,
+                gamesPlayed: 0,
+              })),
+            );
+          }}
+          onClearAllPlayers={() => {
+            setPlayers([]);
+          }}
         />
       ) : (
         <div className="text-center py-12 text-gray-500">

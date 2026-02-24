@@ -125,6 +125,11 @@ export function autoMatchPlayers({
           (_, idx) => idx !== i && idx !== j,
         );
 
+        console.log(
+          team1.map((p) => p),
+          team2.map((p) => p),
+        );
+
         // คำนวณ weight ของทีม
         const team1Weight = team1.reduce(
           (sum, p) => sum + levelWeight[p.level],

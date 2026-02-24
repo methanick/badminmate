@@ -5,21 +5,23 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { Level, LevelConfig } from "@/constants/level";
 import { Member } from "@/model/member.model";
-import { Pencil, UserPlus } from "lucide-react";
+import { Player } from "@/model/player.model";
+import { UserPlus, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface AddPlayerFormProps {
   members: Member[];
-  onAddPlayer: (name: string, level: Level, memberId?: string) => void;
+  players?: Player[];
+  onAddPlayers: (
+    playersData: Array<{ name: string; level: Level; memberId?: string }>,
+  ) => void;
   onClearAllPlayers: () => void;
   onResetGamesPlayed: () => void;
   isEditMode?: boolean;
@@ -28,26 +30,56 @@ interface AddPlayerFormProps {
 
 export function AddPlayerForm({
   members = [],
-  onAddPlayer,
-  onClearAllPlayers,
-  onResetGamesPlayed,
-  isEditMode = false,
-  onEditModeChange,
+  players = [],
+  onAddPlayers,
 }: AddPlayerFormProps) {
-  const [selectedMemberId, setSelectedMemberId] = useState<string>("");
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+  const [currentSelection, setCurrentSelection] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
   // Debug: log members when it changes
   useEffect(() => {
     console.log("AddPlayerForm - members:", members);
   }, [members]);
 
-  const handleAddPlayer = () => {
-    if (selectedMemberId) {
-      const member = members.find((m) => m.id === selectedMemberId);
-      if (member) {
-        onAddPlayer(member.name, member.level, member.id);
-        setSelectedMemberId("");
-      }
+  const handleAddToList = () => {
+    if (currentSelection && !selectedMemberIds.includes(currentSelection)) {
+      setSelectedMemberIds([...selectedMemberIds, currentSelection]);
+      setCurrentSelection("");
+    }
+  };
+
+  const handleRemoveFromList = (memberId: string) => {
+    setSelectedMemberIds(selectedMemberIds.filter((id) => id !== memberId));
+  };
+
+  const handleAddAllPlayers = async () => {
+    if (selectedMemberIds.length === 0) return;
+
+    try {
+      setIsLoading(true);
+
+      const playersData = selectedMemberIds
+        .map((memberId) => {
+          const member = members.find((m) => m.id === memberId);
+          if (!member) return null;
+          return {
+            name: member.name,
+            level: member.level,
+            memberId: member.id,
+          };
+        })
+        .filter(
+          (p): p is { name: string; level: Level; memberId: string } =>
+            p !== null,
+        );
+
+      await onAddPlayers(playersData);
+      setSelectedMemberIds([]);
+    } catch (error) {
+      console.error("Error adding players:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,12 +96,13 @@ export function AddPlayerForm({
           </Link>
         </div>
       )}
+
       <div className="flex gap-1 text-xs items-end">
         <Field className="flex-1">
           <FieldLabel htmlFor="select-member" className="text-xs">
-            เพิ่มผู้เล่น
+            เลือกสมาชิก
           </FieldLabel>
-          <Select value={selectedMemberId} onValueChange={setSelectedMemberId}>
+          <Select value={currentSelection} onValueChange={setCurrentSelection}>
             <SelectTrigger className="h-8 text-xs" id="select-member">
               <SelectValue placeholder="เลือกสมาชิก" />
             </SelectTrigger>
@@ -79,78 +112,93 @@ export function AddPlayerForm({
                   ไม่มีสมาชิก
                 </div>
               ) : (
-                Object.values(Level).map((lv) => {
-                  const levelMembers = members.filter((m) => m.level === lv);
-                  if (levelMembers.length === 0) return null;
-
-                  return (
-                    <SelectGroup key={lv}>
-                      <SelectLabel className="text-xs flex items-center gap-2">
+                members
+                  .filter((m) => !selectedMemberIds.includes(m.id))
+                  .filter((m) => !players.some((p) => p.memberId === m.id))
+                  .map((member) => (
+                    <SelectItem
+                      key={member.id}
+                      value={String(member.id)}
+                      className="text-xs"
+                    >
+                      <div className="flex items-center gap-2">
                         <div
                           className="w-2 h-2 rounded"
-                          style={{ backgroundColor: LevelConfig[lv].color }}
+                          style={{
+                            backgroundColor: LevelConfig[member.level].color,
+                          }}
                         />
-                        {LevelConfig[lv].label}
-                      </SelectLabel>
-                      {levelMembers.map((member) => (
-                        <SelectItem
-                          key={member.id}
-                          value={String(member.id)}
-                          className="text-xs"
-                        >
-                          {member.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  );
-                })
+                        {member.name}
+                      </div>
+                    </SelectItem>
+                  ))
               )}
             </SelectContent>
           </Select>
         </Field>
         <div>
           <Button
-            onClick={handleAddPlayer}
-            disabled={!selectedMemberId}
+            onClick={handleAddToList}
+            disabled={!currentSelection || isLoading}
             size="sm"
             className="h-8 text-xs"
           >
             <UserPlus className="h-3 w-3 mr-1" />
-            เพิ่ม
+            เพิ่มในรายการ
           </Button>
         </div>
       </div>
-      <div className="mt-2 flex justify-end gap-1 flex-wrap">
-        <Button
-          onClick={() => onEditModeChange?.(!isEditMode)}
-          variant={isEditMode ? "default" : "outline"}
-          className={`text-xs h-8 py-1 ${
-            isEditMode
-              ? "bg-blue-600 hover:bg-blue-700"
-              : "border-blue-500 text-blue-600 hover:bg-blue-50"
-          }`}
-          size="sm"
-        >
-          <Pencil className="h-3 w-3 mr-1" />
-          {isEditMode ? "เสร็จแก้ไข" : "แก้ไขผู้เล่น"}
-        </Button>
-        <Button
-          onClick={onResetGamesPlayed}
-          variant="outline"
-          className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs h-8 py-1"
-          size="sm"
-        >
-          รีเซ็ตจำนวนเกม
-        </Button>
-        <Button
-          onClick={onClearAllPlayers}
-          variant="outline"
-          className="border-red-500 text-red-600 hover:bg-red-50 text-xs h-8 py-1"
-          size="sm"
-        >
-          ลบผู้เล่นทั้งหมด
-        </Button>
-      </div>
+
+      {/* Selected Members List */}
+      {selectedMemberIds.length > 0 && (
+        <div className="mt-2 space-y-1">
+          <div className="text-xs font-medium text-gray-700 mb-1">
+            รายการที่เลือก ({selectedMemberIds.length} คน):
+          </div>
+          <div className="flex flex-wrap gap-1">
+            {selectedMemberIds.map((memberId) => {
+              const member = members.find((m) => m.id === memberId);
+              if (!member) return null;
+              return (
+                <div
+                  key={memberId}
+                  className="flex items-center gap-1 bg-gray-100 rounded px-2 py-1 text-xs"
+                >
+                  <div
+                    className="w-2 h-2 rounded"
+                    style={{ backgroundColor: LevelConfig[member.level].color }}
+                  />
+                  <span>{member.name}</span>
+                  <button
+                    onClick={() => handleRemoveFromList(memberId)}
+                    className="ml-1 text-gray-500 hover:text-red-600"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+          <Button
+            onClick={handleAddAllPlayers}
+            disabled={isLoading}
+            size="sm"
+            className="h-8 text-xs w-full mt-2"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                <span>กำลังเพิ่ม...</span>
+              </>
+            ) : (
+              <>
+                <UserPlus className="h-3 w-3 mr-1" />
+                เพิ่มผู้เล่นทั้งหมด ({selectedMemberIds.length} คน)
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

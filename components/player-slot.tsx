@@ -91,7 +91,7 @@ export function PlayerSlot({
               }
             }}
           >
-            ว่าง (แตะเพื่อเพิ่ม)
+            ว่าง
           </button>
 
           <Dialog open={open} onOpenChange={setOpen}>
