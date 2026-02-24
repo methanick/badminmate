@@ -2,11 +2,11 @@ import { supabase } from "@/lib/supabase/client";
 
 export interface QueuedMatchData {
   session_id: string;
-  team1_slot1_Id?: string | null;
-  team1_slot2_Id?: string | null;
-  team2_slot1_Id?: string | null;
-  team2_slot2_Id?: string | null;
-  court_Id?: string | null;
+  team1_slot1_id?: string | null;
+  team1_slot2_id?: string | null;
+  team2_slot1_id?: string | null;
+  team2_slot2_id?: string | null;
+  court_id?: string | null;
   is_playing?: boolean;
 }
 

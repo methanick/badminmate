@@ -19,7 +19,7 @@ export interface Database {
           updated_at: string;
         };
         Insert: {
-          Id?: string;
+          id?: string;
           name: string;
           level: string;
           gender: string;
@@ -27,7 +27,7 @@ export interface Database {
           updated_at?: string;
         };
         Update: {
-          Id?: string;
+          id?: string;
           name?: string;
           level?: string;
           gender?: string;
@@ -66,18 +66,18 @@ export interface Database {
           created_at: string;
         };
         Insert: {
-          Id?: string;
+          id?: string;
           session_id: string;
-          member_Id?: string | null;
+          member_id?: string | null;
           name: string;
           level: string;
           games_played?: number;
           created_at?: string;
         };
         Update: {
-          Id?: string;
+          id?: string;
           session_id?: string;
-          member_Id?: string | null;
+          member_id?: string | null;
           name?: string;
           level?: string;
           games_played?: number;
@@ -97,25 +97,25 @@ export interface Database {
           created_at: string;
         };
         Insert: {
-          Id?: string;
+          id?: string;
           session_id: string;
           name: string;
           is_playing?: boolean;
-          team1_slot1_Id?: string | null;
-          team1_slot2_Id?: string | null;
-          team2_slot1_Id?: string | null;
-          team2_slot2_Id?: string | null;
+          team1_slot1_id?: string | null;
+          team1_slot2_id?: string | null;
+          team2_slot1_id?: string | null;
+          team2_slot2_id?: string | null;
           created_at?: string;
         };
         Update: {
-          Id?: string;
+          id?: string;
           session_id?: string;
           name?: string;
           is_playing?: boolean;
-          team1_slot1_Id?: string | null;
-          team1_slot2_Id?: string | null;
-          team2_slot1_Id?: string | null;
-          team2_slot2_Id?: string | null;
+          team1_slot1_id?: string | null;
+          team1_slot2_id?: string | null;
+          team2_slot1_id?: string | null;
+          team2_slot2_id?: string | null;
           created_at?: string;
         };
       };
@@ -127,15 +127,15 @@ export interface Database {
           created_at: string;
         };
         Insert: {
-          Id?: string;
+          id?: string;
           session_id: string;
           player_id: string;
           created_at?: string;
         };
         Update: {
-          Id?: string;
+          id?: string;
           session_id?: string;
-          player_Id?: string;
+          player_id?: string;
           created_at?: string;
         };
       };
@@ -151,23 +151,23 @@ export interface Database {
           timestamp: string;
         };
         Insert: {
-          Id?: string;
+          id?: string;
           session_id: string;
           court_name: string;
-          team1_player1_Id?: string | null;
-          team1_player2_Id?: string | null;
-          team2_player1_Id?: string | null;
-          team2_player2_Id?: string | null;
+          team1_player1_id?: string | null;
+          team1_player2_id?: string | null;
+          team2_player1_id?: string | null;
+          team2_player2_id?: string | null;
           timestamp?: string;
         };
         Update: {
-          Id?: string;
+          id?: string;
           session_id?: string;
           court_name?: string;
-          team1_player1_Id?: string | null;
-          team1_player2_Id?: string | null;
-          team2_player1_Id?: string | null;
-          team2_player2_Id?: string | null;
+          team1_player1_id?: string | null;
+          team1_player2_id?: string | null;
+          team2_player1_id?: string | null;
+          team2_player2_id?: string | null;
           timestamp?: string;
         };
       };
@@ -184,24 +184,24 @@ export interface Database {
           created_at: string;
         };
         Insert: {
-          Id?: string;
+          id?: string;
           session_id: string;
-          team1_slot1_Id?: string | null;
-          team1_slot2_Id?: string | null;
-          team2_slot1_Id?: string | null;
-          team2_slot2_Id?: string | null;
-          court_Id?: string | null;
+          team1_slot1_id?: string | null;
+          team1_slot2_id?: string | null;
+          team2_slot1_id?: string | null;
+          team2_slot2_id?: string | null;
+          court_id?: string | null;
           is_playing?: boolean;
           created_at?: string;
         };
         Update: {
-          Id?: string;
+          id?: string;
           session_id?: string;
-          team1_slot1_Id?: string | null;
-          team1_slot2_Id?: string | null;
-          team2_slot1_Id?: string | null;
-          team2_slot2_Id?: string | null;
-          court_Id?: string | null;
+          team1_slot1_id?: string | null;
+          team1_slot2_id?: string | null;
+          team2_slot1_id?: string | null;
+          team2_slot2_id?: string | null;
+          court_id?: string | null;
           is_playing?: boolean;
           created_at?: string;
         };

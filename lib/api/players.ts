@@ -3,7 +3,7 @@ import { supabase } from "@/lib/supabase/client";
 
 export interface PlayerData {
   session_id: string;
-  member_Id?: string | null;
+  member_id?: string | null;
   name: string;
   level: Level;
   games_played?: number;
