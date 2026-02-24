@@ -78,7 +78,8 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
   } = await supabase.auth.getUser();
 
   if (error) throw error;
-  return user;
+  if (!user || !user.email) return null;
+  return user as AuthUser;
 }
 
 /**
@@ -88,7 +89,8 @@ export function onAuthStateChange(callback: (user: AuthUser | null) => void) {
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session?.user ?? null);
+    const user = session?.user;
+    callback(user && user.email ? (user as AuthUser) : null);
   });
 
   return subscription;
