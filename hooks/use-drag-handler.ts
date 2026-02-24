@@ -104,13 +104,13 @@ export function useDragHandler({
     if (destId.startsWith("court-")) {
       const parts = destId.split("-");
       if (parts.length === 4) {
-        const targetCourtId = parseInt(parts[1]);
+        const targetCourtId = parts[1];
         const teamKey = parts[2] as "team1" | "team2";
         const slotIdx = parseInt(parts[3]);
 
         // Check if moving within same court
         const sourceCourtId = sourceSlotId.startsWith("player-in-court")
-          ? parseInt(sourceSlotId.split("-")[3])
+          ? sourceSlotId.split("-")[3]
           : null;
 
         if (sourceCourtId === targetCourtId) {

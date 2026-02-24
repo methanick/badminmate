@@ -7,6 +7,7 @@ import {
   createMember,
   deleteMember,
   getAllMembers,
+  Member,
   updateMember,
 } from "@/lib/api/members";
 import { Gender } from "@/model/member.model";
@@ -14,7 +15,7 @@ import { useEffect, useState } from "react";
 
 export default function MembersPage() {
   const { setMembers, currentUser } = useAppContext();
-  const [localMembers, setLocalMembers] = useState<any[]>([]);
+  const [localMembers, setLocalMembers] = useState<Member[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // โหลดข้อมูลจาก Supabase

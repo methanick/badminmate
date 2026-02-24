@@ -96,10 +96,10 @@ export async function deleteCourt(id: string) {
  */
 export async function clearCourtPlayers(courtId: string) {
   return updateCourt(courtId, {
-    team1_slot1_id: null,
-    team1_slot2_id: null,
-    team2_slot1_id: null,
-    team2_slot2_id: null,
+    team1_slot1_Id: null,
+    team1_slot2_Id: null,
+    team2_slot1_Id: null,
+    team2_slot2_Id: null,
     is_playing: false,
   });
 }
@@ -111,10 +111,10 @@ export async function clearAllCourts(sessionId: string) {
   const { error } = await supabase
     .from("courts")
     .update({
-      team1_slot1_id: null,
-      team1_slot2_id: null,
-      team2_slot1_id: null,
-      team2_slot2_id: null,
+      team1_slot1_Id: null,
+      team1_slot2_Id: null,
+      team2_slot1_Id: null,
+      team2_slot2_Id: null,
       is_playing: false,
     })
     .eq("session_id", sessionId);
