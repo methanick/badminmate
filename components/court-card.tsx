@@ -27,6 +27,9 @@ interface CourtCardProps {
   onStartGame: (courtId: string) => void;
   onEndGame: (courtId: string) => void;
   onAutoMatch: (courtId: string) => void;
+  strictMode?: boolean;
+  balancedLevelMode?: boolean;
+  readOnly?: boolean;
 }
 
 export function CourtCard({
@@ -39,6 +42,9 @@ export function CourtCard({
   onStartGame,
   onEndGame,
   onAutoMatch,
+  strictMode = false,
+  balancedLevelMode = false,
+  readOnly = false,
 }: CourtCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(court.name);
@@ -69,16 +75,18 @@ export function CourtCard({
 
   return (
     <Card className="p-2 gap-1 relative">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="absolute top-1 right-1 h-5 w-5 text-red-500 hover:text-red-700"
-        onClick={() => onDelete(court.id)}
-      >
-        <X className="h-3 w-3" />
-      </Button>
+      {!readOnly && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-1 right-1 h-5 w-5 text-red-500 hover:text-red-700"
+          onClick={() => onDelete(court.id)}
+        >
+          <X className="h-3 w-3" />
+        </Button>
+      )}
 
-      {isEditing ? (
+      {isEditing && !readOnly ? (
         <Input
           value={editName}
           onChange={(e) => setEditName(e.target.value)}
@@ -89,8 +97,8 @@ export function CourtCard({
         />
       ) : (
         <h3
-          className="font-semibold text-center mb-2 cursor-pointer hover:text-blue-600 text-sm"
-          onClick={() => setIsEditing(true)}
+          className={`font-semibold text-center mb-2 text-sm ${!readOnly && "cursor-pointer hover:text-blue-600"}`}
+          onClick={() => !readOnly && setIsEditing(true)}
         >
           {court.name}
         </h3>
@@ -111,7 +119,7 @@ export function CourtCard({
                 onAddPlayerToSlot(court.id, "team1", 0, playerId)
               }
               availablePlayers={availablePlayers}
-              disabled={court.isPlaying}
+              disabled={court.isPlaying || readOnly}
             />
             <PlayerSlot
               player={court.team1[1]}
@@ -121,7 +129,7 @@ export function CourtCard({
                 onAddPlayerToSlot(court.id, "team1", 1, playerId)
               }
               availablePlayers={availablePlayers}
-              disabled={court.isPlaying}
+              disabled={court.isPlaying || readOnly}
             />
           </div>
         </div>
@@ -145,7 +153,7 @@ export function CourtCard({
                 onAddPlayerToSlot(court.id, "team2", 0, playerId)
               }
               availablePlayers={availablePlayers}
-              disabled={court.isPlaying}
+              disabled={court.isPlaying || readOnly}
             />
             <PlayerSlot
               player={court.team2[1]}
@@ -155,61 +163,63 @@ export function CourtCard({
                 onAddPlayerToSlot(court.id, "team2", 1, playerId)
               }
               availablePlayers={availablePlayers}
-              disabled={court.isPlaying}
+              disabled={court.isPlaying || readOnly}
             />
           </div>
         </div>
 
         {/* Start/End Button */}
-        <div className="mt-2 space-y-1">
-          {/* Auto Match and Clear Button */}
-          {!court.isPlaying && (
-            <div className="flex gap-1">
+        {!readOnly && (
+          <div className="mt-2 space-y-1">
+            {/* Auto Match and Clear Button */}
+            {!court.isPlaying && (
+              <div className="flex gap-1">
+                <Button
+                  onClick={() => onAutoMatch(court.id)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 h-8"
+                >
+                  จับคู่อัตโนมัติ
+                </Button>
+                <Button
+                  onClick={() => onEndGame(court.id)}
+                  variant="outline"
+                  className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs py-1 h-8"
+                  disabled={
+                    !court.team1[0] &&
+                    !court.team1[1] &&
+                    !court.team2[0] &&
+                    !court.team2[1]
+                  }
+                >
+                  ล้าง
+                </Button>
+              </div>
+            )}
+
+            {/* Start/End Game Button */}
+            {!court.isPlaying ? (
               <Button
-                onClick={() => onAutoMatch(court.id)}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 h-8"
-              >
-                จับคู่อัตโนมัติ
-              </Button>
-              <Button
-                onClick={() => onEndGame(court.id)}
-                variant="outline"
-                className="border-orange-500 text-orange-600 hover:bg-orange-50 text-xs py-1 h-8"
+                onClick={() => onStartGame(court.id)}
+                className="w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1 h-8"
                 disabled={
-                  !court.team1[0] &&
-                  !court.team1[1] &&
-                  !court.team2[0] &&
+                  !court.team1[0] ||
+                  !court.team1[1] ||
+                  !court.team2[0] ||
                   !court.team2[1]
                 }
               >
-                ล้าง
+                Start Game
               </Button>
-            </div>
-          )}
-
-          {/* Start/End Game Button */}
-          {!court.isPlaying ? (
-            <Button
-              onClick={() => onStartGame(court.id)}
-              className="w-full bg-green-600 hover:bg-green-700 text-white text-xs py-1 h-8"
-              disabled={
-                !court.team1[0] ||
-                !court.team1[1] ||
-                !court.team2[0] ||
-                !court.team2[1]
-              }
-            >
-              Start Game
-            </Button>
-          ) : (
-            <Button
-              onClick={() => onEndGame(court.id)}
-              className="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-1 h-8"
-            >
-              End Game
-            </Button>
-          )}
-        </div>
+            ) : (
+              <Button
+                onClick={() => onEndGame(court.id)}
+                className="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-1 h-8"
+              >
+                End Game
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </Card>
   );

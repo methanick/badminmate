@@ -220,7 +220,7 @@ export function HistoryPanel({
                         {game.team1.map((player: Player) => (
                           <div
                             key={player.id}
-                            className="text-[11px] px-2 py-1 rounded w-20 text-center"
+                            className="text-[11px] px-2 py-1 rounded w-20 text-center text-ellipsis overflow-hidden whitespace-nowrap"
                             style={{
                               backgroundColor: LevelConfig[player.level].color,
                               color: "white",

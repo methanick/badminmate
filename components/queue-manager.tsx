@@ -153,19 +153,20 @@ export function QueueManager({
                 <QueueItem
                   key={queue.id}
                   queue={queue}
-                  queueIndex={index}
+                  index={index}
                   availablePlayers={availablePlayers}
-                  availableCourts={availableCourts}
                   courts={courts}
+                  selectedCourtId={selectedCourts[queue.id]}
                   onRemovePlayer={onRemovePlayerFromQueue}
-                  onAddPlayerToSlot={onAddPlayerToQueue}
+                  onAddPlayer={onAddPlayerToQueue}
                   onAutoMatch={onAutoMatchQueue}
-                  onStartQueue={onStartQueue}
-                  onStopQueue={onStopQueue}
-                  onDeleteQueue={onDeleteQueue}
-                  selectedCourt={selectedCourts[queue.id]}
+                  onStart={onStartQueue}
+                  onStop={onStopQueue}
+                  onDelete={onDeleteQueue}
                   onCourtChange={onCourtChange}
-                  isPlaying={true}
+                  strictMode={false}
+                  balancedLevelMode={false}
+                  readOnly={false}
                 />
               ))}
             </div>
@@ -190,19 +191,20 @@ export function QueueManager({
                 <QueueItem
                   key={queue.id}
                   queue={queue}
-                  queueIndex={playingMatches.length + index}
+                  index={playingMatches.length + index}
                   availablePlayers={availablePlayers}
-                  availableCourts={availableCourts}
                   courts={courts}
+                  selectedCourtId={selectedCourts[queue.id]}
                   onRemovePlayer={onRemovePlayerFromQueue}
-                  onAddPlayerToSlot={onAddPlayerToQueue}
+                  onAddPlayer={onAddPlayerToQueue}
                   onAutoMatch={onAutoMatchQueue}
-                  onStartQueue={onStartQueue}
-                  onStopQueue={onStopQueue}
-                  onDeleteQueue={onDeleteQueue}
-                  selectedCourt={selectedCourts[queue.id]}
+                  onStart={onStartQueue}
+                  onStop={onStopQueue}
+                  onDelete={onDeleteQueue}
                   onCourtChange={onCourtChange}
-                  isPlaying={false}
+                  strictMode={false}
+                  balancedLevelMode={false}
+                  readOnly={false}
                 />
               ))}
             </div>

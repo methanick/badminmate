@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useAppContext } from "@/contexts/app-context";
 import { createSession, getAllSessions } from "@/lib/api/sessions";
-import { Calendar, Play, X } from "lucide-react";
+import { Calendar, Check, Link2, Play, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Session {
@@ -27,6 +27,7 @@ export function SessionStarter() {
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [copied, setCopied] = useState(false);
 
   // Load all sessions
   useEffect(() => {
@@ -102,6 +103,20 @@ export function SessionStarter() {
     }
   };
 
+  const handleCopyLink = async () => {
+    if (!currentSessionId) return;
+
+    const url = `${window.location.origin}/match/${currentSessionId}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      alert("ไม่สามารถคัดลอกลิงก์ได้");
+    }
+  };
+
   // If session already started, show session info bar
   if (currentSessionId && currentSessionName) {
     return (
@@ -120,6 +135,24 @@ export function SessionStarter() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <Button
+                onClick={handleCopyLink}
+                variant="outline"
+                size="sm"
+                className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2" />
+                    คัดลอกแล้ว
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="w-4 h-4 mr-2" />
+                    Copy Link
+                  </>
+                )}
+              </Button>
               <Button
                 onClick={handleEndSession}
                 variant="outline"
