@@ -118,7 +118,6 @@ export default function CourtsPage() {
                 players={players}
                 courts={courts}
                 restingPlayers={restingPlayers}
-                members={members}
                 onRemoveFromRest={(playerId) => {
                   setRestingPlayers((prev) =>
                     prev.filter((p) => p.id !== playerId),
