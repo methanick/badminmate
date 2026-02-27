@@ -1,6 +1,10 @@
 import { Level } from "@/constants/level";
 import { createGameHistory } from "@/lib/api/game-history";
-import { createPlayer, createPlayers } from "@/lib/api/players";
+import {
+  createPlayer,
+  createPlayers,
+  deletePlayer as deletePlayerAPI,
+} from "@/lib/api/players";
 import { autoMatchPlayers } from "@/lib/auto-match";
 import { Court } from "@/model/court.model";
 import { GameHistory } from "@/model/game-history.model";
@@ -252,6 +256,49 @@ export function useGameHandlers({
     );
 
     setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
+  };
+
+  const deletePlayer = async (playerId: string) => {
+    try {
+      await deletePlayerAPI(playerId);
+
+      // Remove from all state
+      setPlayers((prev) => prev.filter((p) => p.id !== playerId));
+      setRestingPlayers((prev) => prev.filter((p) => p.id !== playerId));
+
+      // Remove from courts
+      setCourts((prev) =>
+        prev.map((court) => ({
+          ...court,
+          team1: court.team1.map((p) => (p?.id === playerId ? null : p)) as [
+            Player | null,
+            Player | null,
+          ],
+          team2: court.team2.map((p) => (p?.id === playerId ? null : p)) as [
+            Player | null,
+            Player | null,
+          ],
+        })),
+      );
+
+      // Remove from queues (keep tuple structure)
+      setQueuedMatches((prev) =>
+        prev.map((match) => ({
+          ...match,
+          team1: [
+            match.team1[0]?.id === playerId ? null : match.team1[0],
+            match.team1[1]?.id === playerId ? null : match.team1[1],
+          ] as [Player | null, Player | null],
+          team2: [
+            match.team2[0]?.id === playerId ? null : match.team2[0],
+            match.team2[1]?.id === playerId ? null : match.team2[1],
+          ] as [Player | null, Player | null],
+        })),
+      );
+    } catch (error) {
+      console.error("Error deleting player:", error);
+      alert("ไม่สามารถลบผู้เล่นได้");
+    }
   };
 
   const startGame = async (courtId: string) => {
@@ -822,6 +869,7 @@ export function useGameHandlers({
     updateCourtName,
     removePlayerFromSlot,
     updatePlayerDetails,
+    deletePlayer,
     addPlayerToSlot,
     startGame,
     endGame,

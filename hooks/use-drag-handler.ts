@@ -34,11 +34,22 @@ export function useDragHandler({
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!over) return;
+    console.log("🎯 Drag End Event:", { active, over });
+
+    if (!over) {
+      console.log("❌ No drop target");
+      return;
+    }
 
     const draggedPlayer = active.data.current as Player;
     const sourceSlotId = String(active.id);
     const destId = String(over.id);
+
+    console.log("🔄 Drag Info:", {
+      draggedPlayer,
+      sourceSlotId,
+      destId,
+    });
 
     // Handle trash zone
     if (destId === "trash-zone") {
@@ -102,18 +113,27 @@ export function useDragHandler({
 
     // Handle court slots
     if (destId.startsWith("court-")) {
+      console.log("⚽ Dropping to court slot:", destId);
+
       const parts = destId.split("-");
+      console.log("📦 Parts:", parts);
+
       if (parts.length === 4) {
         const targetCourtId = parts[1];
         const teamKey = parts[2] as "team1" | "team2";
         const slotIdx = parseInt(parts[3]);
+
+        console.log("🎯 Target:", { targetCourtId, teamKey, slotIdx });
 
         // Check if moving within same court
         const sourceCourtId = sourceSlotId.startsWith("player-in-court")
           ? sourceSlotId.split("-")[3]
           : null;
 
+        console.log("📍 Source court ID:", sourceCourtId);
+
         if (sourceCourtId === targetCourtId) {
+          console.log("🔄 Moving within same court");
           // Move within same court
           setCourts((prev) =>
             prev.map((court) => {
@@ -157,8 +177,10 @@ export function useDragHandler({
             }),
           );
         } else {
+          console.log("🔀 Moving from different location");
           // Move from different court or player list
           if (sourceCourtId !== null) {
+            console.log("📤 Removing from source court:", sourceCourtId);
             setCourts((prev) =>
               prev.map((court) => {
                 if (court.id !== sourceCourtId) return court;
@@ -183,12 +205,16 @@ export function useDragHandler({
               }),
             );
           } else {
+            console.log(
+              "🎯 Player from outside court (player list or resting)",
+            );
             // Remove from resting zone if present
             setRestingPlayers((prev) =>
               prev.filter((p) => p.id !== draggedPlayer.id),
             );
           }
 
+          console.log("📥 Adding to target court:", targetCourtId);
           // Add to target court
           setCourts((prev) =>
             prev.map((court) => {
@@ -199,8 +225,15 @@ export function useDragHandler({
                 Player | null,
               ];
 
+              console.log("🔍 Current team state:", newTeam);
+              console.log("🔍 Target slot index:", slotIdx);
+              console.log("🔍 Is slot empty?:", !newTeam[slotIdx]);
+
               if (!newTeam[slotIdx]) {
                 newTeam[slotIdx] = draggedPlayer;
+                console.log("✅ Player added to slot!");
+              } else {
+                console.log("❌ Slot already occupied!");
               }
 
               return {

@@ -49,6 +49,7 @@ export default function CourtsPage() {
     updateCourtName,
     removePlayerFromSlot,
     updatePlayerDetails,
+    deletePlayer,
     addPlayerToSlot,
     startGame,
     endGame,
@@ -124,8 +125,10 @@ export default function CourtsPage() {
                   );
                 }}
                 onEditPlayer={updatePlayerDetails}
+                onDeletePlayer={deletePlayer}
                 onAddPlayers={addPlayers}
                 isEditMode={isEditMode}
+                onEditModeChange={setIsEditMode}
                 onClearAllPlayers={clearAllPlayers}
                 onResetGamesPlayed={resetAllGamesPlayed}
               />

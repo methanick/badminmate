@@ -14,7 +14,7 @@ import { getAllMembers } from "@/lib/api/members";
 import { Court } from "@/model/court.model";
 import { Member } from "@/model/member.model";
 import { Player } from "@/model/player.model";
-import { Plus } from "lucide-react";
+import { Check, Edit, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
@@ -24,6 +24,7 @@ interface PlayerGridProps {
   restingPlayers: Player[];
   onRemoveFromRest: (playerId: string) => void;
   onEditPlayer: (playerId: string, name: string, level: Level) => void;
+  onDeletePlayer?: (playerId: string) => void;
   onAddPlayers: (
     playersData: Array<{ name: string; level: Level; memberId?: string }>,
   ) => Promise<void>;
@@ -39,11 +40,13 @@ export function PlayerGrid({
   courts,
   restingPlayers,
   onEditPlayer,
+  onDeletePlayer,
   onAddPlayers,
   isEditMode = false,
   playersInQueue,
   onClearAllPlayers,
   onResetGamesPlayed,
+  onEditModeChange,
 }: PlayerGridProps) {
   const [showModal, setShowModal] = useState(false);
   const [members, setMembers] = useState<Member[]>([]);
@@ -106,6 +109,28 @@ export function PlayerGrid({
             >
               ลบผู้เล่นทั้งหมด
             </Button>
+            <Button
+              onClick={() => onEditModeChange && onEditModeChange(!isEditMode)}
+              variant={isEditMode ? "default" : "outline"}
+              className={`text-xs h-8 py-1 ${
+                isEditMode
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "border-gray-400 text-gray-700 hover:bg-gray-50"
+              }`}
+              size="sm"
+            >
+              {isEditMode ? (
+                <>
+                  <Check className="w-3 h-3 mr-1" />
+                  เสร็จสิ้น
+                </>
+              ) : (
+                <>
+                  <Edit className="w-3 h-3 mr-1" />
+                  แก้ไขผู้เล่น
+                </>
+              )}
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -144,6 +169,7 @@ export function PlayerGrid({
                         courts={courts}
                         restingPlayers={restingPlayers}
                         onEditPlayer={onEditPlayer}
+                        onDeletePlayer={onDeletePlayer}
                         isEditMode={isEditMode}
                         playersInQueue={playersInQueue}
                       />

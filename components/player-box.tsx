@@ -29,6 +29,7 @@ interface PlayerBoxProps {
   courts?: Court[];
   restingPlayers?: Player[];
   onEditPlayer: (playerId: string, name: string, level: Level) => void;
+  onDeletePlayer?: (playerId: string) => void;
   isEditMode?: boolean;
   playersInQueue?: Set<string>;
 }
@@ -39,6 +40,7 @@ export function PlayerBox({
   courts,
   restingPlayers,
   onEditPlayer,
+  onDeletePlayer,
   isEditMode = false,
   playersInQueue,
 }: PlayerBoxProps) {
@@ -118,6 +120,9 @@ export function PlayerBox({
               isResting={isPlayerResting(player.id)}
               isInQueue={isPlayerInQueue(player.id)}
               onEdit={() => openEdit(player)}
+              onDelete={
+                onDeletePlayer ? () => onDeletePlayer(player.id) : undefined
+              }
               isEditMode={isEditMode}
             />
           ))
@@ -206,6 +211,7 @@ function DraggablePlayer({
   isResting,
   isInQueue,
   onEdit,
+  onDelete,
   isEditMode = false,
 }: {
   player: Player;
@@ -213,6 +219,7 @@ function DraggablePlayer({
   isResting?: boolean;
   isInQueue?: boolean;
   onEdit: () => void;
+  onDelete?: () => void;
   isEditMode?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } =
@@ -221,6 +228,14 @@ function DraggablePlayer({
       data: player,
       disabled: isDisabled,
     });
+
+  console.log(`🎮 Player ${player.name}:`, {
+    id: player.id,
+    isDisabled,
+    isResting,
+    isInQueue,
+    isDragging,
+  });
 
   const style = {
     backgroundColor: isDisabled
@@ -244,10 +259,24 @@ function DraggablePlayer({
       style={style}
       {...(isDisabled ? {} : listeners)}
       {...(isDisabled ? {} : attributes)}
-      className="rounded-sm p-1.5 text-white text-xs w-fit min-w-16 text-center relative"
+      className="rounded-sm p-1.5 text-white text-xs w-fit min-w-16 text-center relative group"
       title={isResting ? `${player.name} (กำลังพัก)` : undefined}
     >
       <span className="line-clamp-1 text-start text-xs leading-tight">{`${player.gamesPlayed} | ${player.name}`}</span>
+      {onDelete && isEditMode && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (confirm(`ต้องการลบ ${player.name} ออกจากระบบหรือไม่?`)) {
+              onDelete();
+            }
+          }}
+          className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center"
+          title="ลบผู้เล่น"
+        >
+          ×
+        </button>
+      )}
     </div>
   );
 }
