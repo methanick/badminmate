@@ -110,7 +110,6 @@ export function QueueManager({
           players={players}
           courts={courts}
           restingPlayers={restingPlayers}
-          members={members}
           onRemoveFromRest={onRemoveFromRest}
           onEditPlayer={onEditPlayer}
           onAddPlayers={onAddPlayers}
