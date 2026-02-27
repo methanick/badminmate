@@ -131,6 +131,7 @@ ALTER TABLE sessions ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow public access on sessions" ON sessions;
 DROP POLICY IF EXISTS "Users can manage own sessions" ON sessions;
+DROP POLICY IF EXISTS "Allow public read access on sessions" ON sessions;
 
 CREATE POLICY "Users can view own sessions" ON sessions 
   FOR SELECT USING (auth.uid() = user_id);
@@ -140,6 +141,8 @@ CREATE POLICY "Users can update own sessions" ON sessions
   FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own sessions" ON sessions 
   FOR DELETE USING (auth.uid() = user_id);
+CREATE POLICY "Allow public read access on sessions" ON sessions
+  FOR SELECT USING (true);
 
 -- Players: เข้าถึงได้ผ่าน session ที่เป็นเจ้าของ
 ALTER TABLE players ENABLE ROW LEVEL SECURITY;
@@ -159,6 +162,7 @@ CREATE POLICY "Users can manage players in own sessions" ON players
 ALTER TABLE courts ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow public access on courts" ON courts;
+DROP POLICY IF EXISTS "Allow public read access on courts" ON courts;
 
 CREATE POLICY "Users can manage courts in own sessions" ON courts 
   FOR ALL USING (
@@ -168,6 +172,8 @@ CREATE POLICY "Users can manage courts in own sessions" ON courts
       AND sessions.user_id = auth.uid()
     )
   );
+CREATE POLICY "Allow public read access on courts" ON courts
+  FOR SELECT USING (true);
 
 -- Resting Players: เข้าถึงได้ผ่าน session ที่เป็นเจ้าของ
 ALTER TABLE resting_players ENABLE ROW LEVEL SECURITY;
@@ -187,6 +193,7 @@ CREATE POLICY "Users can manage resting players in own sessions" ON resting_play
 ALTER TABLE game_history ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow public access on game_history" ON game_history;
+DROP POLICY IF EXISTS "Allow public read access on game_history" ON game_history;
 
 CREATE POLICY "Users can manage game history in own sessions" ON game_history 
   FOR ALL USING (
@@ -196,11 +203,14 @@ CREATE POLICY "Users can manage game history in own sessions" ON game_history
       AND sessions.user_id = auth.uid()
     )
   );
+CREATE POLICY "Allow public read access on game_history" ON game_history
+  FOR SELECT USING (true);
 
 -- Queued Matches: เข้าถึงได้ผ่าน session ที่เป็นเจ้าของ
 ALTER TABLE queued_matches ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow public access on queued_matches" ON queued_matches;
+DROP POLICY IF EXISTS "Allow public read access on queued_matches" ON queued_matches;
 
 CREATE POLICY "Users can manage queued matches in own sessions" ON queued_matches 
   FOR ALL USING (
@@ -210,6 +220,8 @@ CREATE POLICY "Users can manage queued matches in own sessions" ON queued_matche
       AND sessions.user_id = auth.uid()
     )
   );
+CREATE POLICY "Allow public read access on queued_matches" ON queued_matches
+  FOR SELECT USING (true);
 
 -- ===================================
 -- Auto-update updated_at trigger

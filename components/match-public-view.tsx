@@ -1,17 +1,14 @@
 "use client";
 
-import { CourtCard } from "@/components/court-card";
 import { HistoryPanel } from "@/components/history-panel";
-import { QueueItem } from "@/components/queue-item";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 import { supabase } from "@/lib/supabase/client";
 import { Court } from "@/model/court.model";
 import { QueuedMatch } from "@/model/queued-match.model";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { Skeleton } from "./ui/skeleton";
 
 interface MatchPublicViewProps {
   sessionId: string;
@@ -36,27 +33,45 @@ export function MatchPublicView({ sessionId }: MatchPublicViewProps) {
       .from("sessions")
       .select("*")
       .eq("id", sessionId)
-      .single();
+      .maybeSingle();
 
-    if (!error && data) {
+    if (error) {
+      console.error("Error loading session:", error);
+      setSession(null);
+    } else if (data) {
       setSession(data);
+    } else {
+      setSession(null);
     }
   }, [sessionId]);
 
   const loadCourts = useCallback(async () => {
     const { data, error } = await supabase
       .from("courts")
-      .select("*")
+      .select(
+        `
+        *,
+        team1_slot1:team1_slot1_id(*),
+        team1_slot2:team1_slot2_id(*),
+        team2_slot1:team2_slot1_id(*),
+        team2_slot2:team2_slot2_id(*)
+      `,
+      )
       .eq("session_id", sessionId)
       .order("created_at", { ascending: true });
 
-    if (!error && data) {
+    if (error) {
+      console.error("Error loading courts:", error);
+      return;
+    }
+
+    if (data) {
       setCourts(
         data.map((court) => ({
           id: court.id,
           name: court.name,
-          team1: court.team1 || [null, null],
-          team2: court.team2 || [null, null],
+          team1: [court.team1_slot1, court.team1_slot2],
+          team2: [court.team2_slot1, court.team2_slot2],
           isPlaying: court.is_playing || false,
         })),
       );
@@ -66,16 +81,29 @@ export function MatchPublicView({ sessionId }: MatchPublicViewProps) {
   const loadQueues = useCallback(async () => {
     const { data, error } = await supabase
       .from("queued_matches")
-      .select("*")
+      .select(
+        `
+        *,
+        team1_slot1:team1_slot1_id(*),
+        team1_slot2:team1_slot2_id(*),
+        team2_slot1:team2_slot1_id(*),
+        team2_slot2:team2_slot2_id(*)
+      `,
+      )
       .eq("session_id", sessionId)
       .order("created_at", { ascending: true });
 
-    if (!error && data) {
+    if (error) {
+      console.error("Error loading queues:", error);
+      return;
+    }
+
+    if (data) {
       setQueuedMatches(
         data.map((queue) => ({
           id: queue.id,
-          team1: queue.team1 || [null, null],
-          team2: queue.team2 || [null, null],
+          team1: [queue.team1_slot1, queue.team1_slot2],
+          team2: [queue.team2_slot1, queue.team2_slot2],
           createdAt: queue.created_at,
           courtId: queue.court_id,
         })),
@@ -178,16 +206,13 @@ export function MatchPublicView({ sessionId }: MatchPublicViewProps) {
         </p>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="status" className="w-full">
+      {/* <Tabs defaultValue="status" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="status">สถานะการเล่น</TabsTrigger>
           <TabsTrigger value="history">ประวัติการเล่น</TabsTrigger>
         </TabsList>
 
-        {/* Tab: สถานะการเล่น */}
         <TabsContent value="status" className="space-y-4">
-          {/* คู่ที่กำลังเล่น */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">
@@ -225,7 +250,6 @@ export function MatchPublicView({ sessionId }: MatchPublicViewProps) {
             </CardContent>
           </Card>
 
-          {/* คิวผู้เล่น */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">
@@ -265,7 +289,6 @@ export function MatchPublicView({ sessionId }: MatchPublicViewProps) {
           </Card>
         </TabsContent>
 
-        {/* Tab: ประวัติการเล่น */}
         <TabsContent value="history">
           <HistoryPanel
             sessionId={sessionId}
@@ -274,7 +297,14 @@ export function MatchPublicView({ sessionId }: MatchPublicViewProps) {
             className="mt-0"
           />
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
+
+      <HistoryPanel
+        sessionId={sessionId}
+        showBackButton={false}
+        showTitle={false}
+        className="mt-0"
+      />
     </div>
   );
 }

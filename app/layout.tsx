@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/sidebar";
 import { AppProvider, useAppContext } from "@/contexts/app-context";
 import { signOut } from "@/lib/api/auth";
 import { Geist, Geist_Mono } from "next/font/google";
+import { usePathname } from "next/navigation";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,6 +20,10 @@ const geistMono = Geist_Mono({
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
   const { currentUser, isAuthLoading } = useAppContext();
+  const pathname = usePathname();
+
+  // Public routes that don't require authentication
+  const isPublicRoute = pathname?.startsWith("/match/");
 
   const handleLogout = async () => {
     try {
@@ -28,6 +33,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       console.error("Error signing out:", error);
     }
   };
+
+  // For public routes, render without auth check and sidebar
+  if (isPublicRoute) {
+    return <main className="min-h-screen bg-gray-50">{children}</main>;
+  }
 
   if (isAuthLoading) {
     return (

@@ -7,6 +7,7 @@ import { GameHistory } from "@/model/game-history.model";
 import { Member } from "@/model/member.model";
 import { Player } from "@/model/player.model";
 import { QueuedMatch } from "@/model/queued-match.model";
+import { usePathname } from "next/navigation";
 import {
   createContext,
   ReactNode,
@@ -55,12 +56,24 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const pathname = usePathname();
 
-  // Load current user on mount
+  // Check if current route is public
+  const isPublicRoute = pathname?.startsWith("/match/");
+
+  // Load current user on mount (skip for public routes)
   useEffect(() => {
+    if (isPublicRoute) {
+      setIsAuthLoading(false);
+      return;
+    }
+
     getCurrentUser()
       .then((user) => setCurrentUser(user))
-      .catch((error) => console.error("Error loading user:", error))
+      .catch((error) => {
+        console.error("Error loading user:", error);
+        setCurrentUser(null);
+      })
       .finally(() => setIsAuthLoading(false));
 
     // Listen to auth changes
@@ -72,7 +85,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [isPublicRoute]);
 
   const [currentSessionId, setCurrentSessionId] = useLocalStorage<
     string | null
