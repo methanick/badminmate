@@ -2,6 +2,7 @@
 
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { AuthUser, getCurrentUser, onAuthStateChange } from "@/lib/api/auth";
+import { getAllMembers } from "@/lib/api/members";
 import { Court } from "@/model/court.model";
 import { GameHistory } from "@/model/game-history.model";
 import { Member } from "@/model/member.model";
@@ -57,6 +58,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const pathname = usePathname();
+  const [members, setMembers] = useState<Member[]>([]);
 
   // Check if current route is public
   const isPublicRoute = pathname?.startsWith("/match/");
@@ -87,6 +89,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [isPublicRoute]);
 
+  // Load members from Supabase when user is authenticated
+  useEffect(() => {
+    if (currentUser && !isPublicRoute) {
+      getAllMembers()
+        .then((data) => {
+          // ensure returned members conform to model.Member by adding createdAt if missing
+          const normalized = data.map((m) => ({
+            ...m,
+            createdAt: (m as any).createdAt ?? Date.now(),
+          })) as Member[];
+          setMembers(normalized);
+        })
+        .catch((error) => console.error("Error loading members:", error));
+    }
+  }, [currentUser, isPublicRoute]);
+
   const [currentSessionId, setCurrentSessionId] = useLocalStorage<
     string | null
   >("badminton-current-session-id", null);
@@ -114,11 +132,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const [queuedMatches, setQueuedMatches] = useLocalStorage<QueuedMatch[]>(
     "badminton-queued-matches",
-    [],
-  );
-
-  const [members, setMembers] = useLocalStorage<Member[]>(
-    "badminton-members",
     [],
   );
 
