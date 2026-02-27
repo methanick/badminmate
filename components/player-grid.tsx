@@ -10,18 +10,18 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Level, LevelConfig } from "@/constants/level";
+import { getAllMembers } from "@/lib/api/members";
 import { Court } from "@/model/court.model";
 import { Member } from "@/model/member.model";
 import { Player } from "@/model/player.model";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 
 interface PlayerGridProps {
   players: Player[];
   courts: Court[];
   restingPlayers: Player[];
-  members: Member[];
   onRemoveFromRest: (playerId: string) => void;
   onEditPlayer: (playerId: string, name: string, level: Level) => void;
   onAddPlayers: (
@@ -38,7 +38,6 @@ export function PlayerGrid({
   players,
   courts,
   restingPlayers,
-  members,
   onEditPlayer,
   onAddPlayers,
   isEditMode = false,
@@ -47,6 +46,21 @@ export function PlayerGrid({
   onResetGamesPlayed,
 }: PlayerGridProps) {
   const [showModal, setShowModal] = useState(false);
+  const [members, setMembers] = useState<Member[]>([]);
+
+  useEffect(() => {
+    // Fetch members from Supabase when component mounts
+    async function fetchMembers() {
+      try {
+        const data = await getAllMembers();
+        setMembers(data);
+      } catch (error) {
+        console.error("Error fetching members:", error);
+      }
+    }
+
+    fetchMembers();
+  }, []);
 
   return (
     <>
