@@ -53,7 +53,15 @@ export function PlayerGrid({
     async function fetchMembers() {
       try {
         const data = await getAllMembers();
-        setMembers(data);
+        // Normalize API members to the app's Member model (ensure createdAt exists)
+        const normalized = data.map((m) => ({
+          id: m.id,
+          name: m.name,
+          level: (m as any).level,
+          gender: (m as any).gender,
+          createdAt: (m as any).createdAt ?? Date.now(),
+        }));
+        setMembers(normalized);
       } catch (error) {
         console.error("Error fetching members:", error);
       }
